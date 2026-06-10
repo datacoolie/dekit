@@ -1,0 +1,167 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+nosetests.xml
+pytest.xml
+
+# ============================================================
+# Virtual Environments
+# ============================================================
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ============================================================
+# Notebooks
+# ============================================================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+*.nbconvert/
+
+# ============================================================
+# Data Files (large / sensitive)
+# ============================================================
+*.csv
+*.tsv
+*.parquet
+*.avro
+*.orc
+*.json.gz
+*.ndjson
+*.jsonl
+*.feather
+*.pkl
+*.pickle
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+*.xlsx
+*.xls
+data/raw/
+data/staging/
+data/landing/
+data/bronze/
+data/silver/
+data/gold/
+
+# ============================================================
+# Spark / Hadoop
+# ============================================================
+spark-warehouse/
+metastore_db/
+derby.log
+*.log
+*.log.*
+
+# ============================================================
+# dbt
+# ============================================================
+dbt_packages/
+target/
+logs/
+profiles.yml
+
+# ============================================================
+# Terraform / Infrastructure
+# ============================================================
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+
+# ============================================================
+# Node / JS (tooling)
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# ============================================================
+# OS
+# ============================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Editors & IDEs
+# ============================================================
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+# ============================================================
+# CI / Artifacts
+# ============================================================
+.cache/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+
+# ============================================================
+# Agent Workspace
+# ============================================================
+.scratch/
