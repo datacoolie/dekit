@@ -50,6 +50,7 @@ Every pipeline plan must address:
 ## Plan Operations
 
 - Create a plan when work is Standard or Complex.
+- Create a plan when moving from research, discussion, or design review into Standard or Complex implementation, even if the user asks to implement immediately.
 - Validate a plan by challenging assumptions, acceptance criteria, gates, and verification.
 - Red-team a plan by identifying failure modes, hidden coupling, breaking changes, and test gaps.
 - Archive or close a plan only after summarizing outcome, evidence, and unresolved follow-up.

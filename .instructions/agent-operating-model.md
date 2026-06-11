@@ -30,6 +30,18 @@ Stop for user input only on:
 | Standard | Multi-file behavior, new feature, schema change | Plan + implement + test + review |
 | Complex | Cross-system, migration, parallel work, high risk | Plan + staged execution + verification gates |
 
+## Research To Implementation
+
+When a user moves from research, discussion, or design review into implementation, classify the implementation request again before editing files.
+
+A request to implement immediately does not skip required planning.
+
+- Trivial or Simple: implement directly with targeted verification.
+- Standard: create the smallest useful implementation plan, then implement unless a stop condition applies.
+- Complex: create a staged plan with verification gates. Stop for approval when the plan changes architecture, contracts, data stages, migration strategy, or irreversible behavior.
+- Prior research can be reused as context, but it is not a substitute for an implementation plan unless it already contains scope, acceptance criteria, affected files or systems, risks, and verification.
+- Complexity is based on implementation blast radius, not conversation length.
+
 ## Skill Use
 
 Use task-specific skills when they reduce risk or context.
