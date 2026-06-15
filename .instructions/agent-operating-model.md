@@ -21,6 +21,21 @@ Stop for user input only on:
 - Required approval gate: a plan, workflow, or layer promotion says review or approval is needed before continuing.
 - Uncharted territory: no established pattern and meaningful risk if guessed.
 
+## Path Resolution
+
+Determine the repository root once before resolving or creating repository-level artifacts:
+
+1. In a Git repository, use the top-level directory reported by `git rev-parse --show-toplevel`.
+2. Outside Git, walk upward from the current working directory and use the directory containing the workspace entrypoint `AGENTS.md`.
+3. If the root remains ambiguous, inspect the workspace structure before writing and ask only when multiple candidates are equally plausible.
+
+Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `.instructions/`, plans, and project skills.
+
+- The current working directory is execution context, not the repository root.
+- A nested `AGENTS.md` may add scoped instructions, but it does not redefine the repository root unless it explicitly says so.
+- Before creating `.scratch/`, `plans/`, `wiki/`, `docs/`, or another repository-level directory, check for and reuse `<repo-root>/<directory>`.
+- Never create a duplicate repository-level directory inside a subdirectory merely because the task is running there.
+
 ## Task Triage
 
 | Level | Criteria | Required workflow |
@@ -59,7 +74,7 @@ Do not include full chat history or unrelated plan files.
 
 ## Scratch Workspace
 
-Use `.scratch/` for temporary local artifacts, experiments, generated reports, packaging output, and reusable work-in-progress that should not become source yet.
+Use `<repo-root>/.scratch/` for temporary local artifacts, experiments, generated reports, packaging output, and reusable work-in-progress that should not become source yet.
 
 - Scratch files may persist across work sessions. Do not remove them just because a task is complete.
 - Clean scratch files only when the user asks, the files are unsafe, or they are clearly obsolete and no longer useful.

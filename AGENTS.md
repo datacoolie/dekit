@@ -20,6 +20,12 @@ Core rules:
 - Do not maintain parallel copies of the same rule.
 - Reports must list unresolved questions at the end.
 
+## Repository Root
+
+Determine the repository root before resolving any repository path. Use the Git top-level directory when available; otherwise use the directory containing the workspace entrypoint `AGENTS.md`.
+
+All relative paths in this file, `README.md`, `.instructions/`, and project skills are relative to that root unless explicitly stated otherwise. The current working directory and nested `AGENTS.md` files do not redefine the root.
+
 ## Required Reading
 
 Before planning or implementation:
@@ -47,6 +53,7 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 ## Operating Rules
 
 - Start with task triage: Trivial, Simple, Standard, or Complex.
+- Resolve repository paths from the repository root, never from the current working directory.
 - Act autonomously inside scope.
 - Stop for breaking changes, irreversible operations, architecture decisions, or uncharted territory.
 - Modify source files directly. No side-by-side final/enhanced copies.
@@ -56,12 +63,14 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 
 ## Repository Layout
 
-- `AGENTS.md` - repository entrypoint for AI runners.
-- `.instructions/` - canonical portable instructions.
-- `wiki/` - internal technical knowledge for engineers and AI runners, when present.
-- `plans/` - implementation plans and reports.
-- `docs/` - user-facing documentation, when present.
-- `.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
+- `<repo-root>/AGENTS.md` - repository entrypoint for AI runners.
+- `<repo-root>/.instructions/` - canonical portable instructions.
+- `<repo-root>/wiki/` - internal technical knowledge for engineers and AI runners, when present.
+- `<repo-root>/plans/` - implementation plans and reports.
+- `<repo-root>/docs/` - user-facing documentation, when present.
+- `<repo-root>/.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
+
+Before creating one of these directories, check for the root-level directory and reuse it. Do not create duplicate repository-level directories inside the current subdirectory.
 
 ## Universal Conventions
 
