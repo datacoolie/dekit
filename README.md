@@ -72,7 +72,7 @@ The `datacoolie-*` skills cover the full ETL lifecycle: `discover -> architect -
 They are not installed by reading this README. Install them when they are not already available:
 
 ```bash
-npx skills add https://github.com/datacoolie/datacoolie
+npx skills add datacoolie/datacoolie
 ```
 
 For a new datacoolie project, create the workspace `AGENTS.md` before doing any project work:
