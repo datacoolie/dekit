@@ -69,6 +69,18 @@ Plan must state:
 - Risks and gates, including stage approval gates when work moves across data layers.
 - Open questions.
 
+Plan status controls whether the plan is editable or historical:
+
+- `planning` or `draft`: update the plan directly.
+- `approved` or `ready`: implement from the plan; use an appendix for material scope changes.
+- `in_progress`, `active`, or `implementing`: treat the plan as an execution record. Do not rewrite it; create the next `appendix-N.md` in the same plan folder.
+- `done`, `complete`, `completed`, or `implemented`: treat the plan as historical. Do not reopen or rewrite it; create the next `appendix-N.md` or a new plan.
+- `blocked`: resolve the blocker first, or ask the user when the next action is unclear.
+
+When continuing from an existing plan, read the parent plan status and existing appendices before writing. Implementation work should target the active plan or appendix by status. If multiple active items conflict, or no active item is clear, ask the user before implementing.
+
+Appendices must reference the parent plan and state the reason for the continuation, status, scope delta, affected files or systems, acceptance criteria, verification, gates, and open questions.
+
 For staged data work, plans must identify the gate after each layer or phase, for example:
 
 - `source -> bronze`: ingestion contract and raw/bronze validation approved.

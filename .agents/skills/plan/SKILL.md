@@ -11,6 +11,7 @@ Use this skill to turn ambiguous work into a small, verifiable plan. Do not impl
 
 - Read only relevant wiki pages, plans, and nearby code.
 - Scan `plans/` for active or overlapping work.
+- When continuing an existing plan, read the parent plan status and existing appendices before writing.
 - If overlap exists, record dependency direction: blocks, blockedBy, or no relationship.
 - Ask only when a decision changes architecture, contract, scope, or risk.
 
@@ -51,6 +52,8 @@ Every pipeline plan must address:
 
 - Create a plan when work is Standard or Complex.
 - Create a plan when moving from research, discussion, or design review into Standard or Complex implementation, even if the user asks to implement immediately.
+- If an existing plan is `in_progress`, `active`, `implementing`, `done`, `complete`, `completed`, or `implemented`, do not edit the parent plan directly. Create the next `appendix-N.md` in the same plan folder for continuation, scope changes, or follow-up implementation planning.
+- Implement from the active plan or appendix status. If status makes the next work item ambiguous, ask the user before implementation.
 - Validate a plan by challenging assumptions, acceptance criteria, gates, and verification.
 - Red-team a plan by identifying failure modes, hidden coupling, breaking changes, and test gaps.
 - Archive or close a plan only after summarizing outcome, evidence, and unresolved follow-up.
