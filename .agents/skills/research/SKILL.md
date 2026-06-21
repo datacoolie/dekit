@@ -35,10 +35,12 @@ Compare options on criteria relevant to the task:
 - Migration and lock-in risk.
 - Team familiarity.
 
+When giving suggestions or proposals, present 2-3 viable options unless there is only one safe or practical choice. Mark one option as recommended and explain why it is the best default for the user's context.
+
 ## Output
 
 ```markdown
-Recommendation: <ranked verdict>
+Recommendation: <recommended option and reason>
 Why:
 - ...
 Options considered:
