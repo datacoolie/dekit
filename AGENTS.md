@@ -24,29 +24,29 @@ Core rules:
 
 Determine the repository root before resolving any repository path. Use the Git top-level directory when available; otherwise use the directory containing the workspace entrypoint `AGENTS.md`.
 
-All relative paths in this file, `README.md`, `.instructions/`, and project skills are relative to that root unless explicitly stated otherwise. The current working directory and nested `AGENTS.md` files do not redefine the root.
+All relative paths in this file, `README.md`, `.agents/instructions/`, and project skills are relative to that root unless explicitly stated otherwise. The current working directory and nested `AGENTS.md` files do not redefine the root.
 
 ## Required Reading
 
 Before planning or implementation:
 
 1. `README.md`
-2. The smallest relevant file from `.instructions/`
+2. The smallest relevant file from `.agents/instructions/`
 
 Do not bulk-load all instructions by default.
 
 ## Instruction Source Of Truth
 
-`.instructions/` is canonical and tool-agnostic.
+`.agents/instructions/` is canonical and tool-agnostic.
 
 | File | Use when |
 |---|---|
-| `.instructions/agent-operating-model.md` | Any task: scope, autonomy, handoff, reporting |
-| `.instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
-| `.instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
-| `.instructions/verification.md` | Tests, evals, review, acceptance checks |
-| `.instructions/wiki.md` | Internal LLM wiki and project memory |
-| `.instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
+| `.agents/instructions/agent-operating-model.md` | Any task: scope, autonomy, handoff, reporting |
+| `.agents/instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
+| `.agents/instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
+| `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
+| `.agents/instructions/wiki.md` | Internal LLM wiki and project memory |
+| `.agents/instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
 
 Platform-specific files may wrap these instructions, but must not duplicate or redefine them.
 
@@ -71,7 +71,7 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 ## Repository Layout
 
 - `<repo-root>/AGENTS.md` - repository entrypoint for AI runners.
-- `<repo-root>/.instructions/` - canonical portable instructions.
+- `<repo-root>/.agents/instructions/` - canonical portable instructions.
 - `<repo-root>/wiki/` - internal technical knowledge for engineers and AI runners, when present.
 - `<repo-root>/plans/` - implementation plans and reports.
 - `<repo-root>/docs/` - user-facing documentation, when present.

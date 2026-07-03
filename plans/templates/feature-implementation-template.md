@@ -68,7 +68,7 @@ Brief 2-3 sentence description of the feature and its business value.
 - **E2E Tests**: End-to-end pipeline run, idempotency verification
 
 ## Quality Gates
-Per `.instructions/data-engineering-constraints.md`: row count, schema, uniqueness, freshness, and reconciliation checks at each layer boundary.
+Per `.agents/instructions/data-engineering-constraints.md`: row count, schema, uniqueness, freshness, and reconciliation checks at each layer boundary.
 
 ## Promotion / Approval Gates
 | Boundary | Evidence Required | Reviewer / Owner | Decision |

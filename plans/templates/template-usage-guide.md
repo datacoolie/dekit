@@ -55,7 +55,7 @@ Before finalizing any plan:
 - [ ] Success criteria are measurable
 - [ ] Context links are used instead of full content
 - [ ] Data flow documented (source → target, with layer boundaries)
-- [ ] Idempotency and quality gates addressed per `.instructions/data-engineering-constraints.md`
+- [ ] Idempotency and quality gates addressed per `.agents/instructions/data-engineering-constraints.md`
 - [ ] Required promotion / approval gates are listed for each staged layer or cutover
 - [ ] TODO checklist is complete and realistic
 

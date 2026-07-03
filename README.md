@@ -7,14 +7,14 @@ Portable instruction and skill toolkit for data engineering teams. Helps AI runn
 ### Runtime Contract
 
 - `AGENTS.md` is the repository entrypoint.
-- `.instructions/` contains portable constraints and verification rules.
+- `.agents/instructions/` contains portable constraints and verification rules.
 - `.agents/skills/` contains task-specific behavior.
 - Platform adapters are optional and must not become a second source of truth.
 
 ### Data Engineering Foundation
 
-All skills inherit universal data engineering constraints defined in `.instructions/data-engineering-constraints.md`:
-idempotency, schema evolution, data contracts, partitioning strategy, quality gates, modeling rules, performance, and security. Verification rules live in `.instructions/verification.md`.
+All skills inherit universal data engineering constraints defined in `.agents/instructions/data-engineering-constraints.md`:
+idempotency, schema evolution, data contracts, partitioning strategy, quality gates, modeling rules, performance, and security. Verification rules live in `.agents/instructions/verification.md`.
 
 ### Bundled Skills by Workflow Mode
 
