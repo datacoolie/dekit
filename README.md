@@ -53,7 +53,8 @@ Additional skills can be added by users or installers. They can still work and a
 
 | Skill | Purpose |
 |---|---|
-| `research` | Technology evaluation, best practices |
+| `brainstorm` | Open-ended ideation, option framing, assumption checks before research or planning |
+| `research` | Source-backed technology evaluation, best practices, and recommendations |
 | `scout` | Fast codebase exploration |
 | `docs-seeker` | External library/framework docs lookup |
 | `wiki` | Internal LLM wiki and project memory |

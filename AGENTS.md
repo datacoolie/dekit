@@ -4,7 +4,7 @@
 
 dekit defines portable operating rules for data engineering AI runners.
 
-It helps any compatible AI runner work on pipelines, SQL, notebooks, data models, quality checks, deployment workflows, debugging, review, internal wiki, user-facing docs, plans, reports, and git operations.
+It helps any compatible AI runner work on pipelines, SQL, notebooks, data models, quality checks, deployment workflows, brainstorming, debugging, review, internal wiki, user-facing docs, plans, reports, and git operations.
 
 ## Philosophy
 
@@ -60,6 +60,13 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 - Preserve user changes. Do not revert unrelated work.
 - Verify before reporting done.
 - Reports must be concise.
+
+## Skill Routing Notes
+
+- Use `brainstorm` for ambiguous ideas, option discovery, assumption checks, and early design trade-offs before evidence is required.
+- Use `research` for source-backed evaluation when current facts, external documentation, standards, benchmarks, or vendor behavior matter.
+- Use `plan` after a direction is selected and implementation scope is Standard or Complex.
+- Do not treat brainstorm output as evidence. Route to research when factual claims need verification.
 
 ## Repository Layout
 

@@ -7,6 +7,15 @@ description: "Research technical options with source-backed recommendations. Use
 
 Use this skill to answer technical questions with evidence and a ranked recommendation.
 
+Research is convergent and source-backed. It is not for open-ended ideation.
+
+## Role Boundary
+
+- Use `research` when the answer depends on current facts, external sources, standards, benchmarks, vendor behavior, or source-backed recommendations.
+- Use `brainstorm` first when the user is still exploring ideas, framing the problem, or comparing unsourced solution directions.
+- Use `plan` after a recommendation is selected and the implementation is Standard or Complex.
+- If the question can be answered from local code or project memory, use `scout`, `wiki`, or the relevant implementation skill before external research.
+
 ## Scope
 
 - Define the decision being made.
