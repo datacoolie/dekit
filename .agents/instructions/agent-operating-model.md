@@ -29,7 +29,7 @@ Determine the repository root once before resolving or creating repository-level
 2. Outside Git, walk upward from the current working directory and use the directory containing the workspace entrypoint `AGENTS.md`.
 3. If the root remains ambiguous, inspect the workspace structure before writing and ask only when multiple candidates are equally plausible.
 
-Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `.instructions/`, plans, and project skills.
+Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `instructions/`, plans, and project skills.
 
 - The current working directory is execution context, not the repository root.
 - A nested `AGENTS.md` may add scoped instructions, but it does not redefine the repository root unless it explicitly says so.
