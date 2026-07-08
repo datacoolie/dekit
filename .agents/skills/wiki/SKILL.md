@@ -13,6 +13,7 @@ This is not end-user documentation. The wiki is an internal memory layer for eng
 
 - Initialize a wiki when a project lacks internal technical memory.
 - Update the wiki when code, schemas, contracts, workflows, plans, or operations change.
+- Update the wiki after implementation when shipped changes affect architecture, terminology, conventions, contracts, schemas, metrics, quality gates, stage gates, runbooks, decisions, or operational behavior.
 - Report wiki status or delta when the user asks what is new, changed, stale, deleted, or pending ingest.
 - Summarize the wiki when a runner needs a compact project map.
 - Health-check the wiki when stale, duplicated, or contradictory knowledge is suspected.

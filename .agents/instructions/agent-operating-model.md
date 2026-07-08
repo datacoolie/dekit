@@ -29,7 +29,7 @@ Determine the repository root once before resolving or creating repository-level
 2. Outside Git, walk upward from the current working directory and use the directory containing the workspace entrypoint `AGENTS.md`.
 3. If the root remains ambiguous, inspect the workspace structure before writing and ask only when multiple candidates are equally plausible.
 
-Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `instructions/`, plans, and project skills.
+Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `.agents/instructions/`, plans, and project skills.
 
 - The current working directory is execution context, not the repository root.
 - A nested `AGENTS.md` may add scoped instructions, but it does not redefine the repository root unless it explicitly says so.
@@ -85,9 +85,22 @@ Use `<repo-root>/.scratch/` for temporary local artifacts, experiments, generate
 
 ## Completion Report
 
+Before reporting substantial implementation done, update or explicitly assess whether to update the internal wiki when the change creates durable project knowledge.
+
+Wiki-relevant implementation changes include:
+
+- Architecture, system boundaries, data flow, or deployment topology.
+- Domain terminology, naming conventions, modeling rules, or coding conventions.
+- Data contracts, schemas, metrics, quality gates, stage gates, or ownership.
+- Operational behavior, runbooks, incidents, rollback, monitoring, or support procedures.
+- Accepted decisions, rejected alternatives, migration notes, or important trade-offs.
+
+If the wiki exists and the change is wiki-relevant, update the smallest relevant wiki pages, `wiki/index.md`, `wiki/log.md`, and `wiki/manifest.json` when applicable. If the wiki does not exist, mention whether one should be created. If no wiki update is needed, say why briefly in the completion report.
+
 End substantial work with:
 
 - What changed.
+- Wiki updated or why no wiki update was needed.
 - Verification performed.
 - Known risks or skipped checks.
 - Unresolved questions, if any.

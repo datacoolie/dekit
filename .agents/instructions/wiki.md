@@ -204,6 +204,16 @@ When a source is deleted:
 
 ## Living Knowledge
 
-Update the wiki when shipped behavior changes. Do not document planned behavior as if it exists.
+Update the wiki when shipped behavior creates durable project knowledge. Do not document planned behavior as if it exists.
+
+Wiki updates are required after implementation when the shipped change affects:
+
+- Architecture, system boundaries, data flow, or deployment topology.
+- Domain terminology, naming conventions, modeling rules, or coding conventions.
+- Data contracts, schemas, metrics, quality gates, stage gates, or ownership.
+- Operational behavior, runbooks, incidents, rollback, monitoring, or support procedures.
+- Accepted decisions, rejected alternatives, migration notes, or important trade-offs.
+
+When the change is small or purely mechanical, record why no wiki update was needed in the completion report instead of creating noise.
 
 Do not duplicate the same knowledge in both `wiki/` and `docs/`; link across boundaries when needed.
