@@ -21,7 +21,9 @@ This is not end-user documentation. The wiki is an internal memory layer for eng
 
 ## Layout
 
-Use `wiki/` unless the project already has a stronger convention.
+Use `<repo-root>/wiki/` unless the project already has a stronger convention. Resolve the path from the repository root, never the current working directory.
+
+Before initializing a wiki, verify the target is exactly `<repo-root>/wiki/`. Do not create a nested `wiki/` merely because the task is running in a child directory. A component-scoped wiki requires an established repository convention or explicit user request.
 
 ```text
 wiki/

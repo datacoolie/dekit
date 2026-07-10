@@ -8,7 +8,9 @@ This is not end-user documentation. Use `docs/` for public or end-user material.
 
 ## Structure
 
-Use `wiki/` for internal technical knowledge when the project has enough stable context to preserve.
+Use `<repo-root>/wiki/` for internal technical knowledge when the project has enough stable context to preserve. Resolve this path from the repository root, not the current working directory.
+
+Before initializing a wiki, verify the target is exactly `<repo-root>/wiki/`. Do not create a child-folder wiki such as `service/wiki/` or `src/wiki/` unless an established repository convention or explicit user request defines it as component-scoped.
 
 Preferred structure:
 

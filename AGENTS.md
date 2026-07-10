@@ -79,6 +79,12 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 
 Before creating one of these directories, check for the root-level directory and reuse it. Do not create duplicate repository-level directories inside the current subdirectory.
 
+Repository-level directory invariant:
+
+- A default repository-level directory must be created only at its exact root-relative path, for example `<repo-root>/wiki/`, never as `./wiki/` relative to a nested working directory.
+- Determine and verify the target path against `<repo-root>` before creating it. If the resolved target is not the root-level path, do not create it.
+- A nested directory with one of these names is allowed only when the repository explicitly defines it as component-scoped or the user explicitly requests it.
+
 ## Universal Conventions
 
 - One commit should contain one coherent change.
