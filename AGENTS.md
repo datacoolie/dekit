@@ -45,6 +45,7 @@ Do not bulk-load all instructions by default.
 | `.agents/instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
 | `.agents/instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
 | `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
+| `.agents/instructions/subagent-model-routing.md` | Custom subagent model routing and fallback |
 | `.agents/instructions/wiki.md` | Internal LLM wiki and project memory |
 | `.agents/instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
 
