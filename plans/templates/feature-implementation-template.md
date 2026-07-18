@@ -95,5 +95,5 @@ Do not begin downstream implementation when the prior boundary has an unresolved
 - [ ] Phase 2 Task 1
 - [ ] Testing complete
 - [ ] User-facing docs updated, if relevant
-- [ ] Wiki updated when technical knowledge changed
+- [ ] Conditional wiki review completed when user-requested or the verified change is major or architectural
 - [ ] Code review passed

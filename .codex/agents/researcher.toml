@@ -1,7 +1,7 @@
 name = "researcher"
 description = "Research current external facts, documentation, standards, and solution approaches with source-backed evidence."
 model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

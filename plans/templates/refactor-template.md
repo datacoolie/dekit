@@ -58,7 +58,8 @@ High-level strategy for the refactoring in 2-3 sentences.
 
 ### Phase 3: Integration & Testing (Est: X days)
 1. [ ] Integration testing + performance validation
-2. [ ] Wiki and documentation updates
+2. [ ] User-facing documentation updates, if relevant
+3. [ ] Conditional wiki review when user-requested or the verified change is major or architectural
 
 ## Backward Compatibility
 - **Breaking Changes**: [List any breaking changes]
@@ -94,5 +95,5 @@ High-level strategy for the refactoring in 2-3 sentences.
 - [ ] Phase 3: Integration complete
 - [ ] Performance benchmarks validated
 - [ ] User-facing docs updated, if relevant
-- [ ] Wiki updated when technical knowledge changed
+- [ ] Conditional wiki review completed when user-requested or the verified change is major or architectural
 - [ ] Code review passed

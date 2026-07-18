@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: Build and maintain an internal technical LLM wiki for a project. Use for agent-facing project memory, architecture notes, contracts, runbooks, decisions, glossary, implementation notes, incremental ingest, delta status, and keeping Markdown knowledge current from source artifacts.
+description: Build and maintain an internal technical LLM wiki when the user requests wiki work or a verified major or architectural change qualifies for automatic wiki review. Use for project memory, architecture notes, contracts, runbooks, decisions, glossary, incremental ingest, delta status, and wiki health. Do not use merely because a routine task or plan completed.
 ---
 
 # Wiki
@@ -11,9 +11,12 @@ This is not end-user documentation. The wiki is an internal memory layer for eng
 
 ## Intent Routing
 
-- Initialize a wiki when a project lacks internal technical memory.
-- Update the wiki when code, schemas, contracts, workflows, plans, or operations change.
-- Update the wiki after implementation when shipped changes affect architecture, terminology, conventions, contracts, schemas, metrics, quality gates, stage gates, runbooks, decisions, or operational behavior.
+- Initialize a wiki when the user requests it. If a project lacks internal technical memory, recommend initialization instead of creating it automatically.
+- Treat wiki maintenance as user-directed by default. Completing a task or plan does not by itself trigger an update.
+- First assess automatic review eligibility from the implemented diff and verified task artifacts; do not read or compare existing wiki content during this initial assessment.
+- Automatically review the wiki only after verified architecture changes or major cross-cutting changes that materially affect multiple components, durable contracts, or operational behavior.
+- For all other changes, review or update the wiki only when the user explicitly requests it.
+- After the user requests an update or the automatic threshold is met, read the smallest relevant wiki context and compare it with the verified change. Write only when the comparison finds missing, stale, or contradictory knowledge.
 - Report wiki status or delta when the user asks what is new, changed, stale, deleted, or pending ingest.
 - Summarize the wiki when a runner needs a compact project map.
 - Health-check the wiki when stale, duplicated, or contradictory knowledge is suspected.

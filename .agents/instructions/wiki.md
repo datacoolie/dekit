@@ -206,16 +206,17 @@ When a source is deleted:
 
 ## Living Knowledge
 
-Update the wiki when shipped behavior creates durable project knowledge. Do not document planned behavior as if it exists.
+Wiki maintenance is user-directed by default. Completing a task or plan does not by itself trigger a wiki update.
 
-Wiki updates are required after implementation when the shipped change affects:
+First assess the automatic update threshold from the implemented diff and verified task artifacts. Do not read, search, or compare existing wiki content during this initial assessment.
 
-- Architecture, system boundaries, data flow, or deployment topology.
-- Domain terminology, naming conventions, modeling rules, or coding conventions.
-- Data contracts, schemas, metrics, quality gates, stage gates, or ownership.
-- Operational behavior, runbooks, incidents, rollback, monitoring, or support procedures.
-- Accepted decisions, rejected alternatives, migration notes, or important trade-offs.
+Trigger an automatic wiki review only after verified implementation when the change:
 
-When the change is small or purely mechanical, record why no wiki update was needed in the completion report instead of creating noise.
+- Changes architecture, system boundaries, data flow, or deployment topology; or
+- Is a major cross-cutting change that materially affects multiple components, durable contracts, or operational behavior.
+
+For routine features, localized contracts or schemas, metrics, quality rules, refactors, fixes, mechanical work, and completed plans, review or update the wiki only when the user explicitly requests it. Do not document planned behavior as shipped behavior.
+
+After the user requests an update or the automatic threshold is met, read only the smallest relevant wiki context and compare it with the verified change. Update the wiki only when the comparison finds missing, stale, or contradictory knowledge; otherwise leave it unchanged. The threshold authorizes comparison, not an unconditional write. Do not create a missing wiki automatically; recommend initialization instead.
 
 Do not duplicate the same knowledge in both `wiki/` and `docs/`; link across boundaries when needed.

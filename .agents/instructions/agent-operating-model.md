@@ -93,22 +93,21 @@ Use `<repo-root>/.scratch/` for temporary local artifacts, experiments, generate
 
 ## Completion Report
 
-Before reporting substantial implementation done, update or explicitly assess whether to update the internal wiki when the change creates durable project knowledge.
+Wiki maintenance is user-directed by default. Completing a task or plan does not by itself trigger a wiki update.
 
-Wiki-relevant implementation changes include:
+Before reporting substantial implementation done, first assess the implemented diff and verified task artifacts against the automatic wiki threshold. Do not read, search, or compare the existing wiki during this initial assessment.
 
-- Architecture, system boundaries, data flow, or deployment topology.
-- Domain terminology, naming conventions, modeling rules, or coding conventions.
-- Data contracts, schemas, metrics, quality gates, stage gates, or ownership.
-- Operational behavior, runbooks, incidents, rollback, monitoring, or support procedures.
-- Accepted decisions, rejected alternatives, migration notes, or important trade-offs.
+Trigger an automatic wiki review only when the verified implementation:
 
-If the wiki exists and the change is wiki-relevant, update the smallest relevant wiki pages, `wiki/index.md`, `wiki/log.md`, and `wiki/manifest.json` when applicable. If the wiki does not exist, mention whether one should be created. If no wiki update is needed, say why briefly in the completion report.
+- Changes architecture, system boundaries, data flow, or deployment topology; or
+- Is a major cross-cutting change that materially affects multiple components, durable contracts, or operational behavior.
+
+For all other changes, review or update the wiki only when the user explicitly requests it. A completed plan is not implemented behavior and never triggers an automatic review. When the user requests an update or the threshold above is met, read only the smallest relevant wiki context and compare it with the verified change. Update the wiki only when that comparison finds missing, stale, or contradictory knowledge; otherwise leave it unchanged. The threshold triggers wiki comparison, not an unconditional write. Do not create a missing wiki automatically; recommend initialization instead.
 
 End substantial work with:
 
 - What changed.
-- Wiki updated or why no wiki update was needed.
+- Wiki action only when an update was performed, explicitly requested, or the automatic threshold was met.
 - Verification performed.
 - Known risks or skipped checks.
 - Unresolved questions, if any.
