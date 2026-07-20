@@ -76,7 +76,7 @@ They are not installed by reading this README. Install them when they are not al
 npx skills add datacoolie/datacoolie
 ```
 
-For a new datacoolie project, create the workspace `AGENTS.md` before doing any project work:
+For a new datacoolie project, you must create the workspace `AGENTS.md` before doing any project work:
 
 ```bash
 project_name="sales_analytics"
