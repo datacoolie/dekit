@@ -66,26 +66,6 @@ Additional skills can be added by users or installers. They can still work and a
 | `git` | Git operations, conventional commits |
 | `docs` | End-user and public documentation |
 
-### ETL Skills (from datacoolie)
-
-The `datacoolie-*` skills cover the full ETL lifecycle: `discover -> architect -> init -> metadata -> provision -> deploy`.
-
-They are not installed by reading this README. Install them when they are not already available:
-
-```bash
-npx skills add datacoolie/datacoolie
-```
-
-For a new datacoolie project, you must create the workspace `AGENTS.md` before doing any project work:
-
-```bash
-project_name="sales_analytics"
-workspace_name="${project_name}_dcws"
-curl --create-dirs -o "${workspace_name}/AGENTS.md" https://raw.githubusercontent.com/datacoolie/datacoolie/main/ai/AGENTS.md
-```
-
-By convention, `{workspace_name}` is `{project_name}_dcws`. Preserve an existing workspace `AGENTS.md` unless the user explicitly asks to replace it.
-
 ## Plans & Templates
 
 Reusable plan templates for data engineering work live in `plans/templates/`:

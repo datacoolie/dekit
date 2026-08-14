@@ -47,6 +47,7 @@ Do not bulk-load all instructions by default.
 | `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
 | `.agents/instructions/wiki.md` | Internal LLM wiki and project memory |
 | `.agents/instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
+| `.agents/instructions/datacoolie.md` | Datacoolie workspace bootstrap and lifecycle |
 
 Platform-specific files may wrap these instructions, but must not duplicate or redefine them.
 
