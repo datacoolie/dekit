@@ -30,6 +30,4 @@ cd "${workspace_name}"
 
 Take note:
 
-- `discover` artifacts belong inside the workspace, never in the dekit repository's `.scratch/` directory.
 - Preserve an existing workspace and its `AGENTS.md` unless the user requests replacement.
-- Do not silently move or delete legacy artifacts already stored in `.scratch/`.
