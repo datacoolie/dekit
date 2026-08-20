@@ -20,9 +20,11 @@ Core rules:
 - Do not maintain parallel copies of the same rule.
 - Reports must list unresolved questions at the end.
 
-## Repository Root
+## Repository Root (`<root>`)
 
 Determine the repository root before resolving any repository path. Use the Git top-level directory when available; otherwise use the directory containing the workspace entrypoint `AGENTS.md`.
+
+In these instructions, `<root>` always means this repository root.
 
 All relative paths in this file, `README.md`, `.agents/instructions/`, and project skills are relative to that root unless explicitly stated otherwise. The current working directory and nested `AGENTS.md` files do not redefine the root.
 
@@ -72,19 +74,19 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 
 ## Repository Layout
 
-- `<repo-root>/AGENTS.md` - repository entrypoint for AI runners.
-- `<repo-root>/.agents/instructions/` - canonical portable instructions.
-- `<repo-root>/wiki/` - internal technical knowledge for engineers and AI runners, when present.
-- `<repo-root>/plans/` - implementation plans and reports.
-- `<repo-root>/docs/` - user-facing documentation, when present.
-- `<repo-root>/.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
+- `<root>/AGENTS.md` - repository entrypoint for AI runners.
+- `<root>/.agents/instructions/` - canonical portable instructions.
+- `<root>/wiki/` - internal technical knowledge for engineers and AI runners, when present.
+- `<root>/plans/` - implementation plans and reports.
+- `<root>/docs/` - user-facing documentation, when present.
+- `<root>/.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
 
 Before creating one of these directories, check for the root-level directory and reuse it. Do not create duplicate repository-level directories inside the current subdirectory.
 
 Repository-level directory invariant:
 
-- A default repository-level directory must be created only at its exact root-relative path, for example `<repo-root>/wiki/`, never as `./wiki/` relative to a nested working directory.
-- Determine and verify the target path against `<repo-root>` before creating it. If the resolved target is not the root-level path, do not create it.
+- A default repository-level directory must be created only at its exact root-relative path, for example `<root>/wiki/`, never as `./wiki/` relative to a nested working directory.
+- Determine and verify the target path against `<root>` before creating it. If the resolved target is not the root-level path, do not create it.
 - A nested directory with one of these names is allowed only when the repository explicitly defines it as component-scoped or the user explicitly requests it.
 
 ## Universal Conventions

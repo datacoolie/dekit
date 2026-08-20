@@ -27,6 +27,10 @@
 - Comments explain why, not what.
 - No placeholders, stubs, TODO implementations, or fake success paths in shippable code.
 
+## Execution
+
+- When `<root>/.venv` exists, use it for Python commands and tools it provides. Do not use a global Python installation or another environment.
+
 ## Safety
 
 - No secrets in code, wiki pages, docs, tests, commits, or examples.

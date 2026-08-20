@@ -33,14 +33,14 @@ Unless a path has an explicit base, resolve paths from the repository root. This
 
 - The current working directory is execution context, not the repository root.
 - A nested `AGENTS.md` may add scoped instructions, but it does not redefine the repository root unless it explicitly says so.
-- Before creating `.scratch/`, `plans/`, `wiki/`, `docs/`, or another repository-level directory, check for and reuse `<repo-root>/<directory>`.
+- Before creating `.scratch/`, `plans/`, `wiki/`, `docs/`, or another repository-level directory, check for and reuse `<root>/<directory>`.
 - Never create a duplicate repository-level directory inside a subdirectory merely because the task is running there.
 
 ### Repository-Level Directory Invariant
 
-Default repository-level directories have one canonical location: `<repo-root>/<directory>`.
+Default repository-level directories have one canonical location: `<root>/<directory>`.
 
-Before creating one, construct its root-relative target and verify that its parent is exactly `<repo-root>`. Do not use a bare relative path such as `wiki/`, `plans/`, `docs/`, or `.scratch/` when the current working directory may be nested. A target such as `<repo-root>/services/api/wiki/` is not the project wiki and must not be created by default.
+Before creating one, construct its root-relative target and verify that its parent is exactly `<root>`. Do not use a bare relative path such as `wiki/`, `plans/`, `docs/`, or `.scratch/` when the current working directory may be nested. A target such as `<root>/services/api/wiki/` is not the project wiki and must not be created by default.
 
 A nested directory with a repository-level name is permitted only when an existing repository convention explicitly defines it as component-scoped, or the user explicitly requests that scope. Otherwise, reuse the canonical root-level directory or ask when the intended scope is unclear.
 
@@ -82,7 +82,7 @@ Do not include full chat history or unrelated plan files.
 
 ## Scratch Workspace
 
-Use `<repo-root>/.scratch/` for temporary local artifacts, experiments, generated reports, packaging output, and reusable work-in-progress that should not become source yet.
+Use `<root>/.scratch/` for temporary local artifacts, experiments, generated reports, packaging output, and reusable work-in-progress that should not become source yet.
 
 - Scratch files may persist across work sessions. Do not remove them just because a task is complete.
 - Clean scratch files only when the user asks, the files are unsafe, or they are clearly obsolete and no longer useful.
