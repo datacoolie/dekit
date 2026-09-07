@@ -1,7 +1,7 @@
 name = "documenter"
 description = "Create verified case studies, user documentation, technical notes, or internal wiki updates for shipped behavior."
 model = "gpt-5.6-luna"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

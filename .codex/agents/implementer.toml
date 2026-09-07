@@ -1,7 +1,7 @@
 name = "implementer"
 description = "Implement an approved plan or clear non-trivial request and perform targeted verification."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
