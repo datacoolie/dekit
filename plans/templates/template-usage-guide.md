@@ -1,71 +1,38 @@
-# Plan Template Usage Guide
+# Plan Template Guide
 
-## Template Selection
+## Choose a Starting Point
 
-### Feature Implementation Template
-**Use when**: Adding new functionality — ingestion pipelines, silver transformations, gold aggregates, new data models, or platform integrations
-**File**: `feature-implementation-template.md`
-**Size**: Medium to large scope changes
+Copy [`plan-template.md`](plan-template.md) for every Standard/Complex execution plan. Add only the relevant anchors from [`scenario-sections.md`](scenario-sections.md).
 
-### Bug Fix Template  
-**Use when**: Fixing data issues — row count mismatches, schema-breaking source changes, data drift incidents, quality gate failures, or pipeline errors
-**File**: `bug-fix-template.md`
-**Size**: Small to medium scope changes
+| Previous entry point | Use the core plus |
+|---|---|
+| `feature-implementation-template.md` | Data pipeline, migration, performance, security, or docs sections as applicable |
+| `bug-fix-template.md` | Diagnosis/bug, incident, data repair, or security sections as applicable |
+| `refactor-template.md` | Refactor, performance/cost, migration, or data pipeline sections as applicable |
 
-### Refactoring Template
-**Use when**: Improving pipeline structure without changing outputs — partition redesign, query optimization, notebook modularization, or medallion layer consolidation
-**File**: `refactor-template.md` 
-**Size**: Medium to large scope changes
+The legacy paths remain selectors for compatibility. They are not independent templates.
 
-## Context Management Best Practices
+## Adaptation Rules
 
-### Keep Plans Focused
-- **Executive Summary**: Max 3 sentences
-- **Context Links**: Reference files, don't include full content
-- **Tasks**: Max 10 per phase
-- **Context budget**: Target <200 words for summaries
+- Remove irrelevant sections instead of filling them with `N/A`.
+- Keep one Work Items table and one Execution State section.
+- Put checked evidence and assumptions near the decision they affect.
+- Mark unknowns and the check that resolves them; do not guess a root cause, filename, estimate, approval, or result.
+- Add a scenario section when its concern changes correctness, recovery, rollout, or verification.
+- Keep plan paths root-relative in prose as `<root>/plans/...`; resolve Markdown links relative to the file containing them.
+- Use Mermaid only when a complex relationship becomes easier to understand; keep the one-sentence takeaway and validate syntax.
 
-### Template Adaptation
-1. Copy the appropriate template to `plans/YYMMDD-feature-name/plan.md`
-2. Fill YAML frontmatter first: title, description, status, priority, effort, branch, tags, blockedBy, blocks, and creation date
-3. Remove sections not relevant to your specific use case
-4. Keep the core structure intact for consistency
+## Continuing Work
 
-### Continuing Existing Plans
-- If a plan is still `planning` or `draft`, update the plan directly.
-- If a plan is `in_progress`, `active`, `implementing`, `done`, `complete`, `completed`, or `implemented`, do not edit the parent plan directly.
-- Add the next numbered appendix in the same folder, such as `appendix-1.md`, `appendix-2.md`, or `appendix-3.md`.
-- The appendix should reference the parent plan and state status, reason, scope delta, affected files or systems, acceptance criteria, verification, gates, and open questions.
-- Implementation should follow the active plan or appendix by status. If status is unclear or multiple appendices conflict, ask before implementing.
+Read the current plan state, active amendment pointer, relevant source/diff, assumptions, and linked durable wiki artifacts before resuming. If the plan was manually deleted, continue only from the durable wiki and source evidence; do not infer the missing checklist, approvals, or next action.
 
-### Cross-References Instead of Duplication
-- Link to existing internal wiki pages in `./wiki/`
-- Link to user-facing documentation in `./docs/` only when relevant
-- Reference other plans without copying content
-- Use file paths instead of code blocks where possible
-- Focus on "what" and "why", not detailed "how"
+- Update routine progress, evidence, blockers, and next action in the active plan.
+- Create a numbered amendment or appendix only for material scope, design, acceptance, dependency, or recovery changes.
+- Completed plans are disposable: retain them, archive them, or delete them manually. Their essential design, decision, architecture, and verification knowledge must already live in the owning durable artifacts. Use a linked follow-up plan for new work.
 
-## Quality Checklist
+## Canonical Rules
 
-Before finalizing any plan:
-- [ ] Executive summary is clear and concise
-- [ ] YAML frontmatter is complete and matches the plan content
-- [ ] Tasks are specific and actionable
-- [ ] File paths are included for implementation tasks
-- [ ] Success criteria are measurable
-- [ ] Context links are used instead of full content
-- [ ] Data flow documented (source → target, with layer boundaries)
-- [ ] Idempotency and quality gates addressed per `.agents/instructions/data-engineering-constraints.md`
-- [ ] Required promotion / approval gates are listed for each staged layer or cutover
-- [ ] TODO checklist is complete and realistic
-
-## Context Refresh Triggers
-
-Use these templates when:
-- Starting a new development phase
-- Switching between different types of work (feature → bugfix)
-- Switching between pipeline layers (bronze ↔ silver ↔ gold)
-- After major context accumulation (>8000 tokens)
-- When agent handoffs occur
-
-This ensures each plan starts with fresh, focused context optimized for the specific task type.
+- Plan contract and lifecycle: [`artifacts.md`](../../.agents/instructions/artifacts.md#plans)
+- Triage and resume context: [`agent-operating-model.md`](../../.agents/instructions/agent-operating-model.md#task-triage)
+- Data constraints and promotion gates: [`data-engineering-constraints.md`](../../.agents/instructions/data-engineering-constraints.md)
+- Verification and evals: [`verification.md`](../../.agents/instructions/verification.md)

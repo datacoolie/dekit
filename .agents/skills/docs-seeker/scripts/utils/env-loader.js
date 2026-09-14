@@ -44,16 +44,17 @@ function parseEnvFile(content) {
  * Priority: process.env > skill/.env > skills/.env > .claude/.env
  * @returns {Object} Merged environment variables
  */
-function loadEnv() {
+function loadEnv(options = {}) {
   const skillDir = path.resolve(__dirname, '../..');
   const skillsDir = path.resolve(skillDir, '..');
   const claudeDir = path.resolve(skillsDir, '..');
 
-  const envPaths = [
-    path.join(claudeDir, '.env'),      // Lowest priority
+  const envPaths = options.paths || [
+    path.join(claudeDir, '.env'),
     path.join(skillsDir, '.env'),
-    path.join(skillDir, '.env'),       // Highest priority (file)
+    path.join(skillDir, '.env'),
   ];
+  const processEnv = options.processEnv || process.env;
 
   let mergedEnv = {};
 
@@ -71,7 +72,7 @@ function loadEnv() {
   }
 
   // process.env has highest priority
-  mergedEnv = { ...mergedEnv, ...process.env };
+  mergedEnv = { ...mergedEnv, ...processEnv };
 
   return mergedEnv;
 }
@@ -82,8 +83,8 @@ function loadEnv() {
  * @param {string} defaultValue - Default value if not found
  * @returns {string} Environment variable value
  */
-function getEnv(key, defaultValue = '') {
-  const env = loadEnv();
+function getEnv(key, defaultValue = '', options = {}) {
+  const env = loadEnv(options);
   return env[key] || defaultValue;
 }
 
@@ -91,4 +92,10 @@ module.exports = {
   loadEnv,
   getEnv,
   parseEnvFile,
+  defaultEnvPaths: () => {
+    const skillDir = path.resolve(__dirname, '../..');
+    const skillsDir = path.resolve(skillDir, '..');
+    const claudeDir = path.resolve(skillsDir, '..');
+    return [path.join(claudeDir, '.env'), path.join(skillsDir, '.env'), path.join(skillDir, '.env')];
+  },
 };

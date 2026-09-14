@@ -6,46 +6,24 @@ license: MIT
 
 # Brainstorm
 
-Use this skill to shape a fuzzy problem before committing to research, planning, or implementation.
+Shape an uncertain problem before committing to research, a plan, or code.
 
-Brainstorming is for option discovery and judgment. It is not source-backed research, implementation planning, or coding.
+## Route
 
-## Role Boundary
+- Use for framing, assumptions, option discovery, and consequential trade-offs.
+- Reuse supplied codebase or research context; do not redo work without a gap.
+- Hand local behavior questions to `scout` and external factual uncertainty to `research`; combine their findings with the user's goals and constraints.
+- Once a direction is accepted, continue to `plan` or implementation instead of reopening the choice.
 
-- Use `brainstorm` when the problem is unclear, the user wants ideas, or the solution space needs exploration.
-- Use `research` when the answer depends on current facts, external sources, standards, benchmarks, vendor behavior, or source-backed recommendations.
-- Use `plan` after a direction is selected and the implementation is Standard or Complex.
-- Use `scout`, `debug`, or `code-review` when the answer depends primarily on existing code behavior.
-- If brainstorming reveals factual uncertainty, hand off to `research` instead of presenting guesses as evidence.
+## Work
 
-## Workflow
+- State the outcome, constraints, non-goals, and assumptions.
+- Surface failure modes, reversibility, and over-engineering risk.
+- Present options or a comparison only when the user must choose; do not force a fixed count.
+- Recommend a direction when evidence is sufficient; otherwise name the missing evidence and next check.
+- Reopen an accepted direction only for new evidence, changed constraints, a failed assumption, or a user request.
 
-1. Frame the problem, desired outcome, constraints, and non-goals.
-2. Ask only high-value clarifying questions. If reasonable assumptions are safe, state them and continue.
-3. Surface hidden constraints, failure modes, and over-engineering risks.
-4. Present 2-3 viable options unless only one practical option exists.
-5. Recommend a default direction and explain why it fits the user's context.
-6. Identify when the next step should be `research`, `plan`, implementation, or no action.
-
-## Evaluation Lens
-
-Compare options by:
-
-- User value and problem fit.
-- Simplicity and reversibility.
-- Implementation effort.
-- Operational burden.
-- Data, security, and compliance risk.
-- Long-term maintainability.
-- Dependencies and lock-in.
-
-## Rules
-
-- Be direct about weak ideas, hidden costs, and likely failure modes.
-- Mark assumptions clearly.
-- Do not claim external facts without evidence; route to `research` when evidence matters.
-- Do not write code, scaffold files, or change the repository while brainstorming.
-- Do not create a long report unless the user asks for one.
+Default output is analysis only: do not edit product code, scaffold code, or present unsourced external facts as settled. In an explicitly assigned discovery/delivery workflow, the coordinator may persist consequential findings, assumptions, and accepted/replaced decisions in the owning wiki spec or decision page; do not create a chat transcript or duplicate the plan.
 
 ## Output
 
@@ -53,11 +31,9 @@ Compare options by:
 Problem: <one sentence>
 Assumptions:
 - ...
-Options:
-| Option | Best when | Trade-offs | Risk |
-|---|---|---|---|
-Recommendation: <recommended option and why>
-Next step: <research | plan | implement | no action>
+Options: <only when a choice exists>
+Recommendation: <direction, evidence gap, or no action>
+Next step: <research | scout | plan | implement | no action>
 Open questions:
 - ...
 ```

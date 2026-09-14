@@ -24,6 +24,17 @@ Choose the smallest set that proves the change:
 | Refactor | Existing tests + behavior equivalence check |
 | Security | Secret scan for touched files + threat-specific test |
 
+## Durable Context Checks
+
+When a task spans sessions or updates project memory, verify the smallest relevant slice:
+
+- A completed plan can be removed in an isolated fixture without removing essential intent, decision, current-behavior references, or verification evidence from their owning artifacts. Never delete the user's real plan as a test.
+- A discovery/delivery workflow updates durable wiki knowledge when a meaningful fact, rationale, decision, assumption, or verified behavior changes; standalone read-only work leaves files unchanged.
+- Proposed intent, accepted decisions, verified behavior, and execution progress remain distinguishable. A source/spec discrepancy is reported, not silently normalized.
+- Resume checks read the root entrypoint, wiki routing/current architecture, relevant spec and decisions, then an active plan if present and scout evidence for drift. Missing plans or multiple active work items must not produce invented progress or newest-file guessing.
+
+Treat these as task-specific acceptance checks, not a reason to create a mandatory memory file or run a broad wiki audit for every change.
+
 ## Evals
 
 When improving runtime behavior, prompts, adapters, or instructions:

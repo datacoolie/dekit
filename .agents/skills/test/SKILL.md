@@ -5,50 +5,28 @@ description: "Run and design verification for code, data pipelines, SQL, Spark, 
 
 # Test
 
-Use the smallest test set that proves the acceptance criteria. Escalate to full suite when risk requires it.
+Select and report the smallest checks that prove the requested acceptance criteria. Do not fix product code under the guise of testing.
 
-## Scope Selection
+## Scope
 
-- Narrow change: run affected tests.
-- Config, shared helper, dependency, infrastructure, or high fan-out change: run full suite.
-- Data pipeline change: run transformation tests plus schema/quality/reconciliation checks.
-- Notebook change: restart and run top-to-bottom where practical.
-- UI change: check console errors, key flows, and responsive/visual behavior.
+- Map changed files to affected behavior, consumers, co-located tests, and blast radius.
+- Run focused tests for narrow risk; escalate to a broader suite only for shared/high-fan-out/dependency/infrastructure or explicitly broad changes.
+- For data work, add only applicable schema, grain/key, freshness, quality, reconciliation, idempotency, and boundary checks.
+- Restart/run notebooks or exercise UI flows only when those paths are in scope; avoid costly/destructive blanket run-all actions.
+- If the environment, credentials, service, or dataset is unavailable, report the gap and what remains unverified.
+- When a plan may be deleted, verify the important outcome from source/tests/runtime evidence and record a compact receipt in the assigned durable wiki page when requested. Do not treat a plan status or an expiring report as proof.
+- For a fresh-session or workflow-rule check, distinguish static walkthroughs and helper regressions from measured agent behavior; do not claim quality, token, or cost improvement without a paired evaluation.
 
-## Diff-Aware Mapping
-
-1. Identify changed files.
-2. Map to co-located tests, mirrored tests, importers, or pipeline quality checks.
-3. List unmapped changed files and proposed tests.
-4. Escalate to full suite if mapping covers most tests or risk is broad.
-
-## Data Test Checklist
-
-- Schema assertion.
-- Row count range.
-- Key uniqueness.
-- Required field completeness.
-- Freshness window.
-- Source-to-target reconciliation.
-- Idempotency rerun.
-- SCD history integrity when relevant.
-- Boundary data: empty, single row, null-heavy, duplicates.
-
-## Standards
-
-- Do not suppress failures.
-- Tests must be deterministic and isolated.
-- Integration tests should use representative data, not mocks that hide source behavior.
-- Report exact commands and results.
+Tests must be deterministic and isolated. Use representative fixtures for integration behavior; a mock is acceptable only when it does not replace the behavior under test.
 
 ## Output
 
 ```markdown
-Scope: <affected|full|explicit>
+Scope: <affected | broad | explicit>
 Commands:
 - <command> -> <result>
 Results: <passed/failed/skipped>
-Coverage or quality gaps:
+Coverage or environment gaps:
 - ...
 Blockers:
 - ...

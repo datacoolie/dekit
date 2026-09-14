@@ -5,55 +5,30 @@ description: "Debug with root-cause analysis before fixes. Use for bugs, failing
 
 # Debug
 
-Root cause first. No speculative fixes.
+Establish what happened and why before changing code.
 
-## Process
+## Work
 
-1. Capture the exact symptom: command, error, logs, failing assertion, bad data sample.
-2. Map affected scope: files, jobs, tables, configs, recent changes.
-3. Form 2-3 plausible hypotheses.
-4. Test each hypothesis with observable evidence.
-5. Fix the confirmed root cause, not the symptom.
-6. Re-run the original failing check.
-7. Add prevention: regression test, validation, monitor, guardrail, or contract.
+- Capture the exact command, error/log, failing assertion, bad-data sample, timing, and affected scope.
+- Map recent code/config/data changes, callers, jobs, tables, and environment assumptions.
+- Form only the hypotheses useful to distinguish causes; test them with observable checks.
+- Conclude a root cause only when the evidence chain supports it. If reproduction or evidence is incomplete, report uncertainty and the next check.
+- Fix only when requested/authorized, then rerun the original reproduction and add a prevention check.
 
-## Evidence Checklist
+Containment or manual data repair is a separate, explicitly authorized action; do not hide an unresolved cause behind retries or suppression.
 
-- Raw error output or failing data captured.
-- Timeline connects trigger, symptom, and impact.
-- Recent code/config/source data changes checked.
-- Alternatives ruled out are named.
-- Root cause has an evidence chain.
-- Fix is verified by the original reproduction path.
-
-## Data Pipeline Debugging
-
-- Schema drift: compare actual vs expected schema at ingestion.
-- Missing data: check source freshness, file manifest, watermark, partition filters.
-- Duplicates: inspect replay behavior, merge keys, dedup ordering.
-- Stale data: check cache/materialization refresh and orchestration.
-- Spark OOM/skew: inspect collect/toPandas, partition sizes, join strategy, explain plan.
-- SQL slowness: inspect plan, predicates, implicit casts, partition/index pruning.
-
-## Red Flags
-
-- "Probably", "seems fixed", or "tests pass" without original reproduction rerun.
-- Fixing production data manually instead of replaying pipeline.
-- Adding retries for deterministic data failures.
-- Suppressing failing tests or quality gates.
+For data incidents, inspect schema/contract boundaries, watermarks/replay, dedup keys/order, partition filters, join cardinality/skew, query plans, and cache/materialization only when relevant.
 
 ## Output
 
 ```markdown
-Root cause: <one sentence>
+Symptom/scope: ...
+Root cause: <confirmed cause or unresolved>
 Evidence:
 - ...
-Fix:
-- ...
-Verification:
-- <command/check/result>
-Prevention:
-- ...
+Fix/containment: <only authorized action>
+Verification: <original check and result, or next check>
+Prevention: ...
 Open questions:
 - ...
 ```

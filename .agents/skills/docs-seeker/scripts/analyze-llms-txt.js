@@ -1,19 +1,7 @@
 #!/usr/bin/env node
 
-/**
- * llms.txt Analyzer Script
- * Parses llms.txt content and categorizes URLs for work distribution
- */
+/** Analyze an llms.txt payload without fetching or mutating anything. */
 
-const { loadEnv } = require('./utils/env-loader');
-
-// Load environment
-const env = loadEnv();
-const DEBUG = env.DEBUG === 'true';
-
-/**
- * URL priority categories
- */
 const PRIORITY_KEYWORDS = {
   critical: [
     'getting-started', 'quick-start', 'quickstart', 'introduction', 'intro', 'overview',
@@ -29,133 +17,74 @@ const PRIORITY_KEYWORDS = {
   ],
 };
 
-/**
- * Categorize URL by priority
- * @param {string} url - Documentation URL
- * @returns {string} Priority level (critical/important/supplementary)
- */
 function categorizeUrl(url) {
-  const urlLower = url.toLowerCase();
-
-  // Check in priority order: critical first, then supplementary, then important
-  // This ensures specific keywords (advanced, internals) are caught before generic ones
-  const priorities = ['critical', 'supplementary', 'important'];
-
-  for (const priority of priorities) {
-    const keywords = PRIORITY_KEYWORDS[priority];
-    for (const keyword of keywords) {
-      if (urlLower.includes(keyword)) {
-        return priority;
-      }
-    }
+  const urlLower = String(url || '').toLowerCase();
+  for (const priority of ['critical', 'supplementary', 'important']) {
+    if (PRIORITY_KEYWORDS[priority].some((keyword) => urlLower.includes(keyword))) return priority;
   }
-
-  return 'important'; // Default
+  return 'important';
 }
 
-/**
- * Parse llms.txt content to extract URLs
- * @param {string} content - llms.txt content
- * @returns {Array<string>} Array of URLs
- */
 function parseUrls(content) {
-  if (!content || typeof content !== 'string') {
-    return [];
-  }
+  if (!content || typeof content !== 'string') return [];
 
   const urls = [];
-  const lines = content.split('\n');
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    // Skip comments and empty lines
-    if (!trimmed || trimmed.startsWith('#')) continue;
-
-    // Extract URLs (look for http/https)
-    const urlMatch = trimmed.match(/https?:\/\/[^\s<>"]+/i);
-    if (urlMatch) {
-      urls.push(urlMatch[0]);
+  const seen = new Set();
+  const markdownPattern = /\[[^\]]*\]\(\s*(https?:\/\/[^\s)<>]+)\s*\)/gi;
+  const plainPattern = /https?:\/\/[^\s<>"')\]]+/gi;
+  const add = (value) => {
+    const cleaned = value.replace(/[.,;:!?]+$/, '');
+    if (cleaned && !seen.has(cleaned)) {
+      seen.add(cleaned);
+      urls.push(cleaned);
     }
-  }
+  };
 
+  for (const match of content.matchAll(markdownPattern)) add(match[1]);
+  for (const match of content.matchAll(plainPattern)) add(match[0]);
   return urls;
 }
 
-/**
- * Group URLs by priority
- * @param {Array<string>} urls - Array of URLs
- * @returns {Object} URLs grouped by priority
- */
 function groupByPriority(urls) {
-  const groups = {
-    critical: [],
-    important: [],
-    supplementary: [],
-  };
-
-  for (const url of urls) {
-    const priority = categorizeUrl(url);
-    groups[priority].push(url);
-  }
-
+  const groups = { critical: [], important: [], supplementary: [] };
+  for (const url of urls || []) groups[categorizeUrl(url)].push(url);
   return groups;
 }
 
 /**
- * Suggest work distribution
- * @param {number} urlCount - Total number of URLs
- * @returns {Object} Work distribution suggestion
+ * Return a bounded concurrency hint. It is deliberately a hint: provider
+ * limits and task dependencies belong to the caller, not this parser.
  */
-function suggestWorkDistribution(urlCount) {
-  if (urlCount <= 3) {
+function suggestWorkDistribution(urlCount, maxWorkers = 4) {
+  const count = Math.max(0, Number(urlCount) || 0);
+  const boundedMax = Math.max(1, Math.floor(Number(maxWorkers) || 4));
+  if (count <= 3) {
     return {
       workerCount: 1,
       strategy: 'single',
-      urlsPerWorker: urlCount,
-      description: 'Single worker can handle all URLs',
-    };
-  } else if (urlCount <= 10) {
-    const workers = Math.min(Math.ceil(urlCount / 2), 5);
-    return {
-      workerCount: workers,
-      strategy: 'parallel',
-      urlsPerWorker: Math.ceil(urlCount / workers),
-      description: `Use ${workers} parallel workers`,
-    };
-  } else if (urlCount <= 20) {
-    return {
-      workerCount: 7,
-      strategy: 'parallel',
-      urlsPerWorker: Math.ceil(urlCount / 7),
-      description: 'Use 7 workers with balanced workload',
-    };
-  } else {
-    return {
-      workerCount: 7,
-      strategy: 'phased',
-      urlsPerWorker: Math.ceil(urlCount / 7),
-      phases: 2,
-      description: 'Use two-phase approach: critical first, then important',
+      urlsPerWorker: count,
+      bounded: true,
+      description: 'Single worker can handle all URLs; the caller controls concurrency.',
     };
   }
+  const workers = Math.min(boundedMax, Math.max(1, Math.ceil(count / 4)));
+  return {
+    workerCount: workers,
+    strategy: 'parallel',
+    urlsPerWorker: Math.ceil(count / workers),
+    bounded: true,
+    description: `Bounded suggestion for ${workers} workers; adjust to provider limits and task dependencies.`,
+  };
 }
 
-/**
- * Analyze llms.txt content
- * @param {string} content - llms.txt content
- * @returns {Object} Analysis result
- */
 function analyzeLlmsTxt(content) {
   const urls = parseUrls(content);
   const grouped = groupByPriority(urls);
-  const distribution = suggestWorkDistribution(urls.length);
-
   return {
     totalUrls: urls.length,
     urls,
     grouped,
-    distribution,
+    distribution: suggestWorkDistribution(urls.length),
     summary: {
       critical: grouped.critical.length,
       important: grouped.important.length,
@@ -164,43 +93,24 @@ function analyzeLlmsTxt(content) {
   };
 }
 
-/**
- * CLI entry point
- */
 function main() {
   const args = process.argv.slice(2);
-
   if (args.length === 0) {
     console.error('Usage: node analyze-llms-txt.js <content-file-or-stdin>');
-    console.error('Or pipe content: cat llms.txt | node analyze-llms-txt.js');
+    console.error('Or pass - and pipe llms.txt content on stdin.');
     process.exit(1);
   }
-
   const fs = require('fs');
-  let content;
-
-  if (args[0] === '-') {
-    // Read from stdin
-    content = fs.readFileSync(0, 'utf8');
-  } else {
-    // Read from file
-    const filePath = args[0];
-    if (!fs.existsSync(filePath)) {
-      console.error(`Error: File not found: ${filePath}`);
-      process.exit(1);
-    }
-    content = fs.readFileSync(filePath, 'utf8');
+  try {
+    const content = args[0] === '-' ? fs.readFileSync(0, 'utf8') : fs.readFileSync(args[0], 'utf8');
+    console.log(JSON.stringify(analyzeLlmsTxt(content), null, 2));
+  } catch (error) {
+    console.error(`Error: unable to read llms.txt input (${error.code || error.message}).`);
+    process.exit(1);
   }
-
-  const result = analyzeLlmsTxt(content);
-  console.log(JSON.stringify(result, null, 2));
-  process.exit(0);
 }
 
-// Run if called directly
-if (require.main === module) {
-  main();
-}
+if (require.main === module) main();
 
 module.exports = {
   analyzeLlmsTxt,

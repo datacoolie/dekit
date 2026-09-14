@@ -5,42 +5,16 @@ description: "Write and optimize PySpark and Spark SQL. Use for Spark DataFrames
 
 # Spark Development
 
-Use this skill for Spark implementation choices and performance risk checks.
+Make Spark choices from workload evidence, correctness contracts, and retry behavior.
 
 ## Rules
 
-- Define schemas explicitly at production read boundaries.
-- Prefer built-in functions over pandas UDFs; pandas UDFs over Python UDFs.
-- Keep transformations set-based; avoid driver-side loops.
-- Use idempotent writes: MERGE/upsert, replaceWhere, or partition overwrite.
-- Partition by query/lifecycle pattern, not convenience.
-- Cache only DataFrames reused across multiple actions; unpersist after use.
-- Inspect plans before optimizing: `explain("formatted")` or platform equivalent.
-- Tune from observed data size, skew, shuffle, and SLA, not guesses.
-
-## Join Checklist
-
-- Expected cardinality is known before joining.
-- Join keys have compatible types and null behavior.
-- Broadcast only genuinely small sides.
-- No cartesian product unless deliberately bounded.
-- For skew, validate key distribution before salting or repartitioning.
-
-## Red Flags
-
-- `collect()`, `toPandas()`, or `repartition(1)` on large data.
-- `inferSchema=True` in production.
-- Python UDF for simple expressions.
-- Repeated `.count()` actions just for logging.
-- Writes without atomicity or retry/idempotency plan.
-- Partition columns missing from common filters.
+- Use explicit schemas at production boundaries and set-based transformations; avoid driver-side collection/loops unless bounded and intentional.
+- Prefer built-ins over pandas/Python UDFs when equivalent, but validate data type, serialization, and workload trade-offs.
+- Choose partitioning, caching, AQE, broadcast, and salting from observed size, reuse, skew, filters, and SLA; unpersist caches whose lifetime is done.
+- Before a join, check key types/nulls/cardinality; broadcast only a genuinely small side and never allow an unbounded cartesian product.
+- For MERGE/overwrite/repartition writes, validate keys, affected scope, nondeterministic expressions, atomicity, and retries. The operation name alone does not prove idempotency.
 
 ## Verification
 
-Before reporting Spark work complete:
-
-- Run affected transformation or representative local/unit test.
-- Validate output schema and row counts.
-- Confirm rerun behavior is idempotent.
-- Inspect explain plan for unexpected cartesian joins, excessive exchanges, or missing pruning.
-- Reconcile critical measures against source or prior layer.
+Run the affected transformation or representative local test, inspect schema/row counts and an `explain("formatted")` plan, and check skew/shuffle/pruning. Rerun a write where safe and reconcile critical measures. Treat `collect()`, `toPandas()`, `repartition(1)`, inferred production schemas, and repeated logging actions as workload-dependent risk signals, not automatic defects.

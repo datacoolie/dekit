@@ -1,66 +1,38 @@
 ---
 name: plan
-description: "Create implementation plans, architecture decisions, and phased roadmaps. Use for Standard or Complex changes, new pipelines, schema changes, migrations, multi-file features, technology choices, or when acceptance criteria and verification strategy are unclear."
+description: "Create small, verifiable implementation plans for Standard or Complex work, migrations, contracts, or decisions with meaningful uncertainty or risk."
 ---
 
 # Planning
 
-Use this skill to turn ambiguous work into a small, verifiable plan. Do not implement code in this skill.
+Turn a selected direction into an executable, verifiable plan. Do not implement product code here.
 
-## First Checks
+## Route
 
-- Read only relevant wiki pages, plans, and nearby code.
-- Scan `plans/` for active or overlapping work.
-- When continuing an existing plan, read the parent plan status and existing appendices before writing.
-- If overlap exists, record dependency direction: blocks, blockedBy, or no relationship.
-- Ask only when a decision changes architecture, contract, scope, or risk.
+- Plan Standard/Complex work or an explicit plan request; keep trivial/simple work direct.
+- Use `scout` for local context, `research` for current external facts, and `brainstorm` while the direction is still unsettled.
+- For diagnosis-only work, plan evidence collection and next checks without assuming a fix.
+- If implementation is authorized, hand off after the plan is actionable; keep planning state separate from implementation.
+- Move from discovery when the outcome, constraints, and selected direction are clear enough to make the scoped work actionable. Keep non-blocking unknowns with an owner and resolution check; gate dependent work on unresolved architecture, contract, security, or irreversible-behavior choices.
+- Link the owning wiki spec, research, architecture, decision, or runbook. The plan is disposable execution state and must not be the only copy of durable knowledge.
 
-## Plan Must Include
+## Contract
 
-- Goal and non-goals.
-- Scope: files, systems, data products, consumers.
-- Current state and constraints.
-- Proposed design with alternatives rejected.
-- Phases with observable completion criteria.
-- Verification strategy: tests, data checks, review gates.
-- Risks, rollback, and migration path.
-- Open questions.
+Follow the canonical lifecycle in [artifacts.md](../../instructions/artifacts.md). Include only what applies: outcome/non-goals, scope, checked context, constraints/assumptions, selected approach and consequential alternatives, work items with completion evidence, criterion-to-verification mapping, risks/recovery, current state, blockers, and next action.
 
-## Data Pipeline Planning
+Do not invent filenames, estimates, root causes, approvals, or results. For data work, read [data-engineering-constraints.md](../../instructions/data-engineering-constraints.md) and include only relevant correctness, quality, performance, backfill, and promotion gates.
 
-Every pipeline plan must address:
+## Operations
 
-- Source-to-target mapping.
-- Load pattern: full, append, merge, CDC.
-- Change detection and replay window.
-- Partitioning and file format.
-- Idempotency guarantee.
-- Schema evolution behavior.
-- Quality gates at layer boundaries.
-- Runtime/freshness/cost target.
-- Backfill and rollback path.
+- Check `plans/` for active or overlapping work and record the relationship.
+- Update routine progress in the current plan; use a numbered amendment for material scope, design, acceptance, dependency, or recovery changes.
+- Validate hidden coupling, breaking changes, test gaps, and authorization before handoff.
+- Close only when scoped criteria have evidence and durable outcomes are recorded in their owning artifacts. A completed plan may be retained, archived, or manually deleted; deletion never authorizes recreation or inferred progress. Plan status never authorizes deployment.
+- Reuse accepted decisions. Reopen one only for new evidence, changed constraints, failed assumptions, or a user request, and record the trigger and affected scope.
 
-## Quality Bar
-
-- Prefer the smallest plan that removes implementation ambiguity.
-- Completion criteria must be observable, not opinion-based.
-- Avoid speculative phases and future-proofing.
-- Do not put large tutorials or copied references in plans; link to source material.
-- If two approaches are close, choose the simpler one with easier verification.
-
-## Plan Operations
-
-- Create a plan when work is Standard or Complex.
-- Create a plan when moving from research, discussion, or design review into Standard or Complex implementation, even if the user asks to implement immediately.
-- If an existing plan is `in_progress`, `active`, `implementing`, `done`, `complete`, `completed`, or `implemented`, do not edit the parent plan directly. Create the next `appendix-N.md` in the same plan folder for continuation, scope changes, or follow-up implementation planning.
-- Implement from the active plan or appendix status. If status makes the next work item ambiguous, ask the user before implementation.
-- Validate a plan by challenging assumptions, acceptance criteria, gates, and verification.
-- Red-team a plan by identifying failure modes, hidden coupling, breaking changes, and test gaps.
-- Archive or close a plan only after summarizing outcome, evidence, and unresolved follow-up.
+Use [plan-template.md](../../../plans/templates/plan-template.md) when a template helps, and keep scenario sections conditional.
 
 ## Output
-
-Return the plan path and a short summary:
 
 ```markdown
 Plan: plans/<id>/plan.md

@@ -323,6 +323,22 @@ def deleted_item(key: str, source_path: Path, entry: dict[str, Any] | None, git_
     return item
 
 
+def merge_git_context(item: dict[str, Any], git_change: dict[str, Any]) -> None:
+    """Combine committed and worktree evidence for one current source."""
+    current = item.setdefault("git_change", {})
+    statuses = current.setdefault("statuses", [current.get("status")] if current.get("status") else [])
+    status = git_change.get("status")
+    if status and status not in statuses:
+        statuses.append(status)
+    if git_change.get("working_tree"):
+        current["working_tree"] = True
+        current["worktree_status"] = status
+    elif status:
+        current["committed_status"] = status
+    if git_change.get("previous_path"):
+        current["previous_path"] = git_change["previous_path"]
+
+
 def run_git(repo: Path, args: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["git", "-C", str(repo), *args],
@@ -352,44 +368,63 @@ def git_commit_reachable(repo: Path, commit: str) -> bool:
 
 
 def git_ls_files(repo: Path) -> list[dict[str, Any]]:
-    output = git_output(repo, ["ls-files"])
+    output = run_git(repo, ["ls-files", "-z"]).stdout
     return [
-        {"path": line.strip(), "status": "tracked"}
-        for line in output.splitlines()
-        if line.strip()
+        {"path": path, "status": "tracked"}
+        for path in output.split("\0")
+        if path
     ]
 
 
 def git_diff_name_status(repo: Path, commit: str) -> list[dict[str, Any]]:
-    output = git_output(repo, ["diff", "--name-status", "-M", f"{commit}..HEAD"])
+    output = run_git(repo, ["diff", "--name-status", "-M", "-z", f"{commit}..HEAD"]).stdout
     changes: list[dict[str, Any]] = []
-    for line in output.splitlines():
-        if not line.strip():
-            continue
-        parts = line.split("\t")
-        code = parts[0]
-        if code.startswith("R") and len(parts) >= 3:
-            changes.append({"status": code, "previous_path": parts[1], "path": parts[2]})
-        elif len(parts) >= 2:
-            changes.append({"status": code, "path": parts[1]})
+    parts = [part for part in output.split("\0") if part]
+    index = 0
+    while index < len(parts):
+        header = parts[index]
+        if "\t" in header:
+            code, path = header.split("\t", 1)
+        else:
+            code, path = header, None
+        index += 1
+        if code.startswith("R") or code.startswith("C"):
+            if path is None and index < len(parts):
+                path = parts[index]
+                index += 1
+            if index < len(parts):
+                previous_path = path
+                path = parts[index]
+                index += 1
+                changes.append({"status": code, "previous_path": previous_path, "path": path})
+        elif path is not None:
+            changes.append({"status": code, "path": path})
+        elif index < len(parts):
+            changes.append({"status": code, "path": parts[index]})
+            index += 1
     return changes
 
 
 def git_status_changes(repo: Path) -> list[dict[str, Any]]:
     # Do not pass --ignored. Gitignored untracked files are intentionally
     # outside wiki delta unless the user runs an explicit filesystem scan.
-    output = run_git(repo, ["status", "--porcelain"]).stdout.rstrip("\n")
+    output = run_git(repo, ["status", "--porcelain=v1", "-z"]).stdout
     changes: list[dict[str, Any]] = []
-    for line in output.splitlines():
-        if not line:
+    parts = [part for part in output.split("\0") if part]
+    index = 0
+    while index < len(parts):
+        record = parts[index]
+        index += 1
+        if len(record) < 3:
             continue
-        code = line[:2]
-        raw_path = line[3:].strip()
-        if " -> " in raw_path:
-            previous, current = raw_path.split(" -> ", 1)
+        code = record[:2]
+        current = record[3:]
+        if code[0] in {"R", "C"} and index < len(parts):
+            previous = parts[index]
+            index += 1
             changes.append({"status": code, "previous_path": previous, "path": current, "working_tree": True})
         else:
-            changes.append({"status": code, "path": raw_path, "working_tree": True})
+            changes.append({"status": code, "path": current, "working_tree": True})
     return changes
 
 
@@ -497,11 +532,35 @@ def compute_git_delta(
         changes.extend(git_status_changes(repo))
 
     seen_current: set[str] = set()
+    seen_deleted: set[str] = set()
     items: list[dict[str, Any]] = []
     for change in changes:
         rel = change["path"].replace("\\", "/")
         status_code = change["status"]
         current_path = repo / rel
+
+        git_change = {
+            "status": status_code,
+            "repo": str(repo),
+            "working_tree": bool(change.get("working_tree")),
+        }
+        if change.get("previous_path"):
+            git_change["previous_path"] = change["previous_path"]
+
+        # A rename has two lifecycle effects: the new source must be scanned,
+        # while pages attached to the old manifest key need reconciliation.
+        # Emit the old association even when the destination extension is
+        # excluded, instead of silently abandoning it.
+        previous_rel = change.get("previous_path")
+        if status_code.startswith("R") and previous_rel:
+            previous_rel = previous_rel.replace("\\", "/")
+            previous_path = repo / previous_rel
+            previous_key = rel_key(previous_path, base)
+            previous_entry = manifest_sources.get(previous_key) or manifest_sources.get(previous_rel)
+            if isinstance(previous_entry, dict) and previous_key not in seen_deleted:
+                renamed_change = {**git_change, "lifecycle": "renamed"}
+                items.append(deleted_item(previous_key, previous_path, previous_entry, renamed_change))
+                seen_deleted.add(previous_key)
 
         allowed = is_allowed_source_key(
             rel,
@@ -514,23 +573,22 @@ def compute_git_delta(
         if not allowed:
             continue
 
-        git_change = {
-            "status": status_code,
-            "repo": str(repo),
-            "working_tree": bool(change.get("working_tree")),
-        }
-        if change.get("previous_path"):
-            git_change["previous_path"] = change["previous_path"]
-
         key = rel_key(current_path, base)
         if "D" in status_code and not current_path.exists():
-            previous_key = change.get("previous_path") or rel
-            entry = manifest_sources.get(previous_key) or manifest_sources.get(key)
-            source_path = repo / previous_key
-            items.append(deleted_item(previous_key, source_path, entry if isinstance(entry, dict) else None, git_change))
+            deleted_key = rel_key(current_path, base)
+            entry = manifest_sources.get(deleted_key) or manifest_sources.get(rel)
+            source_path = repo / rel
+            if deleted_key not in seen_deleted:
+                items.append(deleted_item(deleted_key, source_path, entry if isinstance(entry, dict) else None, git_change))
+                seen_deleted.add(deleted_key)
             continue
 
         if not current_path.exists():
+            continue
+        if key in seen_current:
+            existing = next((item for item in items if item.get("path") == key and item.get("status") != "deleted"), None)
+            if existing is not None:
+                merge_git_context(existing, git_change)
             continue
         seen_current.add(key)
         entry = manifest_entry_for_path(manifest_sources, key, current_path)
@@ -628,6 +686,7 @@ def render_text(delta: dict[str, Any]) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute wiki ingest delta.")
     parser.add_argument("--wiki-root", default="wiki", help="Wiki root directory containing manifest.json.")
+    parser.add_argument("--root", default=None, help="Repository root used for relative paths (defaults to the Git top-level).")
     parser.add_argument("--source", action="append", default=[], help="Source file or directory. Can be repeated.")
     parser.add_argument("--base", default=None, help="Base path used to normalize source keys.")
     parser.add_argument("--git-repo", default=None, help="Git repository to use as the candidate selector.")
@@ -647,41 +706,68 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def repository_root(start: Path | None = None) -> Path:
+    anchor = (start or Path.cwd()).resolve()
+    result = subprocess.run(
+        ["git", "-C", str(anchor), "rev-parse", "--show-toplevel"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return Path(result.stdout.strip()).resolve()
+    return anchor
+
+
+def resolve_cli_path(value: str, root: Path) -> Path:
+    path = Path(value).expanduser()
+    return path.resolve() if path.is_absolute() else (root / path).resolve()
+
+
 def main() -> int:
     args = parse_args()
-    wiki_root = Path(args.wiki_root)
-    base = Path(args.base) if args.base else None
+    root = resolve_cli_path(args.root, repository_root()) if args.root else repository_root()
+    wiki_root = resolve_cli_path(args.wiki_root, root)
+    base = resolve_cli_path(args.base, root) if args.base else None
     extensions = {normalize_ext(ext).lower() for ext in args.ext} if args.ext else set(PROFILE_EXTENSIONS[args.profile])
     filenames = set(DEFAULT_FILENAMES)
-    manifest = load_manifest(wiki_root)
+    try:
+        manifest = load_manifest(wiki_root)
 
-    if args.git_repo:
-        delta = compute_git_delta(
-            manifest=manifest,
-            wiki_root=wiki_root,
-            repo=Path(args.git_repo),
-            base=base,
-            last_commit=args.last_commit,
-            include_worktree=not args.no_worktree,
-            extensions=extensions,
-            filenames=filenames,
-            include_patterns=args.include,
-            exclude_patterns=args.exclude,
-            allow_secrets=args.allow_secrets,
-        )
-    else:
-        source_paths = [Path(p) for p in args.source] or [Path.cwd()]
-        delta = compute_filesystem_delta(
-            manifest=manifest,
-            wiki_root=wiki_root,
-            source_paths=source_paths,
-            base=base,
-            extensions=extensions,
-            filenames=filenames,
-            include_patterns=args.include,
-            exclude_patterns=args.exclude,
-            allow_secrets=args.allow_secrets,
-        )
+        if args.git_repo:
+            delta = compute_git_delta(
+                manifest=manifest,
+                wiki_root=wiki_root,
+                repo=resolve_cli_path(args.git_repo, root),
+                base=base,
+                last_commit=args.last_commit,
+                include_worktree=not args.no_worktree,
+                extensions=extensions,
+                filenames=filenames,
+                include_patterns=args.include,
+                exclude_patterns=args.exclude,
+                allow_secrets=args.allow_secrets,
+            )
+        else:
+            source_paths = [resolve_cli_path(p, root) for p in args.source] or [root]
+            delta = compute_filesystem_delta(
+                manifest=manifest,
+                wiki_root=wiki_root,
+                source_paths=source_paths,
+                base=base,
+                extensions=extensions,
+                filenames=filenames,
+                include_patterns=args.include,
+                exclude_patterns=args.exclude,
+                allow_secrets=args.allow_secrets,
+            )
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        if args.json:
+            print(json.dumps({"error": str(error), "code": "delta-error"}, ensure_ascii=False))
+        else:
+            print(f"Error: {error}")
+        return 2
 
     if args.json:
         print(json.dumps(delta, indent=2, ensure_ascii=False))

@@ -5,52 +5,31 @@ description: "Run security review for code, data pipelines, infrastructure, note
 
 # Security
 
-Use this skill to find and prioritize real security risk. Do not turn it into a generic code review.
+Find and prioritize plausible security risk in the requested scope. This is a security review, not an automatic release or generic style pass.
 
 ## Scope
 
-- Code paths handling identity, permissions, secrets, PII, money, compliance, external input, or production data.
-- Config and infrastructure that define network, IAM, encryption, logging, or deployment boundaries.
-- Data pipelines that move sensitive data across trust boundaries.
+Start with assets, actors, trust boundaries, data sensitivity, exposure, and the requested operation. Inspect identity/token validation, authorization/IAM, input/deserialization/SQL/command boundaries, secrets/PII/logging, network/encryption/audit controls, resource exhaustion/retry limits, and dependency/script supply chain only where reachable.
 
-## Checklist
+For data systems, check synthetic/minimized test data, least-privilege table/column/path/job identity, and platform-supported encryption/audit controls. An unpinned dependency is a review signal; call it a vulnerability only with an exploit or policy context.
 
-- Spoofing: identity checks, session handling, service principals, token validation.
-- Tampering: input validation, SQL/command injection, unsafe deserialization, mutable artifacts.
-- Repudiation: audit logs, run ids, user/action attribution.
-- Information disclosure: secrets, PII, stack traces, over-broad data access.
-- Denial of service: unbounded queries, file reads, retries, resource exhaustion.
-- Elevation of privilege: missing authz, broad IAM, insecure defaults.
-- Supply chain: unpinned deps, unsafe scripts, untrusted downloads.
+## Boundary and remediation
 
-## Data Security
-
-- PII is tagged and masked where required.
-- Dev/test data is synthetic, anonymized, or minimized.
-- Secrets are injected from secret stores, never committed.
-- Access is least privilege by table, column, storage path, and job identity.
-- Encryption and audit logging are enabled where platform supports them.
-
-## Remediation Rules
-
-- Critical findings block release.
-- Fix root causes, not only the reported sink.
-- Add regression tests, policy checks, or secret scans for fixed classes.
-- Re-run security checks after remediation.
-- Document accepted risk explicitly with owner and expiry.
+- Default to review-only: do not patch, rotate secrets, deploy, or accept risk unless separately requested and authorized.
+- A critical reachable exposure or data-loss path is a release blocker to report, not permission to release or rollback.
+- If remediation is requested, fix the root cause, add a threat-specific regression/policy/scan, and rerun it.
+- Record accepted risk only when an authorized owner, rationale, and expiry are supplied; never invent approval.
 
 ## Output
 
 ```markdown
 Findings:
-- [Critical|High|Medium|Low] file:line - issue, exploit path, impact, fix
+- [severity] file:line — asset/trust boundary, exploit path, impact, evidence, smallest fix
 
 Verification:
-- <checks run and result>
-
+- <checks and results>
 Accepted risk:
-- ...
-
+- <owner/expiry or none supplied>
 Open questions:
 - ...
 ```

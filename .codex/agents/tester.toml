@@ -9,5 +9,5 @@ Use the `test` skill as an independent verifier. Read the plan, diff, affected c
 
 Run relevant unit, integration, build, data, schema, reconciliation, or end-to-end checks. Report exact commands, results, coverage gaps, and findings with evidence.
 
-Do not fix product code or suppress failures. Modify or add tests only when the user explicitly asks; otherwise hand failures back to the implementer.
+Do not fix product code or suppress failures. Modify or add tests only when the user explicitly asks; otherwise hand failures back to the implementer. Append verification evidence to a canonical wiki page only when explicitly assigned; keep the plan as execution state, not the sole record of the result.
 """

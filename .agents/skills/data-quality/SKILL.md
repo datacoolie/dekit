@@ -5,50 +5,17 @@ description: "Define and enforce data quality rules, contracts, assertions, reco
 
 # Data Quality
 
-Use this skill to define quality rules that are executable, observable, and tied to data contracts.
+Turn the dataset contract into observable checks with an explicit response.
 
-## Quality Dimensions
+## Define
 
-- Schema: required columns, types, nullability, allowed evolution.
-- Completeness: required fields populated; expected entities present.
-- Uniqueness: primary/natural keys have no unexpected duplicates.
-- Validity: values are in accepted ranges, domains, formats, and enums.
-- Freshness: latest data falls within SLA/window.
-- Consistency: relationships and business rules hold across tables.
-- Reconciliation: source and target counts, sums, hashes, or balances agree.
+- Name the dataset, owner, grain, keys, required/optional fields, types, freshness window, expected volume, and business invariants.
+- Select checks that match the contract: schema/evolution, completeness, uniqueness, validity, freshness, relationships, SCD/history, or reconciliation.
+- For each gate, state scope, tolerance and exclusions (including delayed arrivals), severity, owner, and fail/quarantine/continue response.
+- Reconcile equivalent source and target scopes; count equality is not meaningful when windows or filters differ.
 
-## Gate Policy
-
-- Fail fast for revenue, compliance, regulatory, and irreversible downstream outputs.
-- Quarantine and continue only when bad records are isolated, monitored, and replayable.
-- Thresholds must be explicit: tolerance, severity, owner, and response.
-- Quality results must be logged even when they pass.
-- Every quality failure needs a reproducible query or assertion.
-
-## Contract Checklist
-
-- Dataset/table name and owner.
-- Grain and primary/natural keys.
-- Required and optional columns with types.
-- Freshness SLA and expected volume range.
-- Accepted values and business invariants.
-- Breaking-change rules.
-- Quality checks and failure behavior.
-
-## Anti-Patterns
-
-- Tests that only check "query ran successfully".
-- Silent casts, dropped bad records, or hidden default values.
-- Quality checks only in gold; validate at layer boundaries.
-- Tolerances without rationale.
-- Mocks that hide source integration issues.
+Fail fast for revenue, compliance, regulatory, or irreversible outputs. Quarantine only when rejected records are isolated, observable, replayable, and do not silently disappear. Never hide bad data with casts/defaults.
 
 ## Verification
 
-Before marking quality work done:
-
-- Run checks against representative good and bad data.
-- Prove failures block or quarantine as designed.
-- Reconcile source-to-target for critical measures.
-- Verify quality results are observable in logs/tables.
-- Add regression coverage for the defect class if fixing an incident.
+Run representative good, bad, empty, duplicate, null-heavy, delayed, and schema-change fixtures as applicable. Verify the gate outcome, persisted result/log, alert/owner path, and regression coverage for incident fixes.

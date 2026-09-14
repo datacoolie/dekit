@@ -5,50 +5,19 @@ description: "Design, implement, and review DataOps workflows for data platforms
 
 # DataOps
 
-## Overview
+Make deployment and recurring operations repeatable, observable, and recoverable.
 
-Build reliable, repeatable, observable data platform operations. Automate what humans forget.
+## Route by mode
 
-## Core Checklist
+- Deploy/CI: validate the affected metadata, schema, SQL, notebook, or config; package artifacts reproducibly; promote environments and approvals according to risk.
+- Provision: use declarative, idempotent definitions with environment parity and explicit destructive-change approval.
+- Operate: capture run/source/target/volume/quality context; alert on actionable impact, owner, threshold, and first response.
+- Cost/capacity: use observed volume/SLA to set bounds, autoscaling limits, lifecycle/compaction, and cost attribution where supported.
 
-Before marking DataOps work complete, verify:
+Keep secrets in approved stores/injection, least privilege, network/encryption/audit controls, and a rollback/recovery path. A checkpoint reset, replay, or rollback must be justified by source/sink state and evidence, not a generic recipe.
 
-- Infrastructure is declarative or scriptable and safe to re-run.
-- Secrets are referenced through vaults, environment injection, or platform secret stores.
-- CI/CD has build, test, deploy, and rollback gates appropriate to risk.
-- Rollback or recovery path is explicit and avoids data loss.
-- Monitoring covers job success/failure, freshness, SLA, cost, and resource utilization.
-- Alerts are actionable: owner, threshold, impact, and first response are clear.
-- Cost controls exist: scaling limits, idle shutdown, lifecycle policies, or budgets.
-- Security baseline covers least privilege, network boundary, encryption, and audit logs.
-- Runbooks or internal wiki pages are updated when behavior changes.
+Wiki updates remain user-directed unless the canonical [wiki policy](../../instructions/wiki.md) threshold is met; a behavior change alone does not mandate a page.
 
-## Patterns
+## Verification
 
-### CI/CD For Data
-
-- Validate metadata, schemas, SQL, notebooks, and pipeline configs before deploy.
-- Promote environments explicitly: dev -> staging -> prod.
-- Require approval for production deploys and breaking data contract changes.
-- Package artifacts reproducibly: wheels, jars, SQL bundles, notebooks, or deployment manifests.
-
-### Infrastructure Provisioning
-
-- Prefer IaC or checked-in deployment definitions over manual console changes.
-- Keep environment parity: prod-like topology, scaled down where needed.
-- Make provisioning idempotent; repeated runs must converge, not duplicate resources.
-- Treat destructive changes as irreversible operations requiring explicit approval.
-
-### Operations
-
-- Define runtime, freshness, and cost baselines for recurring jobs.
-- Capture structured logs with job id, run id, source, target, row counts, and quality results.
-- Alert before SLA breach where possible.
-- Make failed run recovery deterministic: replay window, checkpoint reset, or rollback.
-
-### Cost And Capacity
-
-- Size compute from observed data volume and SLA.
-- Use autoscaling carefully; cap runaway scale.
-- Compact small files and apply lifecycle policies for cold data.
-- Track cost per pipeline, domain, or product where the platform supports it.
+Rerun the relevant deployment/provision/operation in a safe environment, exercise failure and recovery paths, and verify logs, alerts, freshness/SLA, quality, resource, and cost signals. Report unavailable services or approvals as gaps.

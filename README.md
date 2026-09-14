@@ -13,8 +13,7 @@ Portable instruction and skill toolkit for data engineering teams. Helps AI runn
 
 ### Data Engineering Foundation
 
-All skills inherit universal data engineering constraints defined in `.agents/instructions/data-engineering-constraints.md`:
-idempotency, schema evolution, data contracts, partitioning strategy, quality gates, modeling rules, performance, and security. Verification rules live in `.agents/instructions/verification.md`.
+Relevant skills reference the universal data engineering constraints in `.agents/instructions/data-engineering-constraints.md`; they do not implicitly load every domain rule. Verification rules live in `.agents/instructions/verification.md`.
 
 ### Bundled Skills by Workflow Mode
 
@@ -29,7 +28,7 @@ Additional skills can be added by users or installers. They can still work and a
 | `plan` | Implementation planning, architecture decisions, phased roadmaps |
 | `spark-development` | PySpark patterns, joins, optimization, UDFs, debugging |
 | `sql-authoring` | Window functions, CTEs, pivots, dialect differences |
-| `data-modeling` | Kimball dimensional modeling, star schema, SCD, Data Vault |
+| `data-modeling` | Grain-first dimensional or non-dimensional modeling, SCD, Data Vault, keys, metrics |
 | `data-ingestion` | Ingestion patterns, transfer methods, change detection, landing zones, platform mapping |
 | `notebook-development` | Cell organization, parameterization, Fabric/Databricks/Jupyter patterns |
 
@@ -56,8 +55,8 @@ Additional skills can be added by users or installers. They can still work and a
 | `brainstorm` | Open-ended ideation, option framing, assumption checks before research or planning |
 | `research` | Source-backed technology evaluation, best practices, and recommendations |
 | `scout` | Fast codebase exploration |
-| `docs-seeker` | External library/framework docs lookup |
-| `wiki` | Internal LLM wiki and project memory |
+| `docs-seeker` | Current external docs via explicit Context7/llms.txt inputs with guarded query fallback |
+| `wiki` | Internal LLM wiki and project memory with selective, read-only query/status helpers |
 
 **Utility** — supporting workflows:
 
@@ -72,22 +71,24 @@ Reusable plan templates for data engineering work live in `plans/templates/`:
 
 | Template | Use when |
 |---|---|
-| `feature-implementation-template.md` | New ingestion pipelines, silver transforms, gold aggregates, data models |
-| `bug-fix-template.md` | Row count mismatches, schema drift, quality gate failures, pipeline errors |
-| `refactor-template.md` | Partition redesign, notebook modularization, query optimization, layer consolidation |
-| `template-usage-guide.md` | Selecting the right template and quality checklist |
+| `plan-template.md` | Shared core for implementation plans |
+| `scenario-sections.md` | Optional sections for bugs, incidents, pipelines, migrations, repairs, refactors, performance, tooling, and security |
+| `template-usage-guide.md` | Choosing and adapting the core template |
+| `feature-implementation-template.md` | Compatibility selector for feature-specific sections |
+| `bug-fix-template.md` | Compatibility selector for diagnosis and repair sections |
+| `refactor-template.md` | Compatibility selector for refactor and performance sections |
 
-Convention: copy the template to `plans/YYMMDD-feature-name/plan.md`.
+Convention: copy `plans/templates/plan-template.md` to `<root>/plans/YYMMDD-feature-name/plan.md`, then add only relevant scenario sections. Plans hold disposable execution state; link durable knowledge in `wiki/` rather than making a plan its only copy.
 
-## Relationship to datacoolie
+## Wiki & Session Continuity
 
-**datacoolie** is a pip-installable Python library that runs ETL pipelines.
+When a project needs persistent internal knowledge, initialize `<root>/wiki/index.md` and add only populated areas: `specs/`, `research/`, `architecture/`, `decisions/`, and `runbooks/`. The dekit repository's own routing map is [`wiki/index.md`](wiki/index.md); it is this repository's knowledge instance, not a runtime dependency for projects that consume dekit. Update the owning page during an assigned discovery or delivery workflow when a meaningful fact, decision, rationale, or verified behavior changes.
 
-**dekit** wraps datacoolie with everything else a data engineering team needs: Spark development patterns, SQL authoring, data modeling, data quality, notebook best practices, internal wiki maintenance, end-user docs, plus general engineering workflows (git, debugging, testing, planning, code review).
+At a new session, read `AGENTS.md`, this README, applicable instructions, the wiki index/current architecture, the relevant spec and decisions, then the active plan (if present) and scout the affected source/config/tests. Completed plans may be deleted manually; they are not the long-term memory store. See [wiki instructions](.agents/instructions/wiki.md) and [artifact rules](.agents/instructions/artifacts.md).
 
 ## Getting Started
 
 1. Clone this repo into your workspace
 2. Read `AGENTS.md`
 3. Configure your AI runner to load the relevant adapters
-4. For new Standard or Complex work, copy a template from `plans/templates/` to `plans/YYMMDD-feature-name/plan.md`
+4. For Standard/Complex, risk-bearing Simple, or explicitly requested planning, copy `plans/templates/plan-template.md` to `plans/YYMMDD-feature-name/plan.md` and add only relevant scenario sections

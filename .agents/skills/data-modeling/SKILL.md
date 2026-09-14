@@ -5,43 +5,18 @@ description: "Design warehouse and semantic data models. Use for grain definitio
 
 # Data Modeling
 
-Use this skill when data shape, grain, history, or business meaning is the main design problem.
+Make grain, history, relationships, and metric meaning explicit.
 
-## Required Decisions
+## Decide
 
-- Grain: one row represents exactly what.
-- Model style: star schema, wide mart, Data Vault, hybrid, or operational table.
-- Entity keys: natural key, surrogate key, hash key, composite key.
-- Fact type: transaction, periodic snapshot, accumulating snapshot, factless.
-- Dimension behavior: Type 0/1/2/3/6, role-playing, conformed, junk, mini-dimension.
-- Relationship handling: one-to-many, many-to-many, bridge, hierarchy.
-- Metric contract: numerator, denominator, filters, time grain, late-arriving behavior.
+- State what one row represents before choosing columns or model style.
+- Select dimensional, Data Vault, wide-mart, operational, or hybrid design from query/workload and history needs; do not force a star schema.
+- Choose natural, surrogate, hash, or composite keys and unknown-member behavior from mutability and integration needs.
+- For facts, distinguish transaction, periodic/accumulating snapshot, and factless facts. Add measures only when the grain has them.
+- Define dimension history (0/1/2/3/6), relationship/bridge rules, and metric numerator, denominator, filters, time grain, and late-arrival behavior only where applicable.
 
-## Design Rules
-
-- Define grain before columns.
-- Facts contain measures and foreign keys; dimensions contain descriptive context.
-- Use surrogate keys when business keys can change or SCD history matters.
-- Use conformed dimensions for cross-domain analysis.
-- Use bridges only when many-to-many cannot be simplified without losing meaning.
-- Keep business logic centralized; duplicate metric logic is a defect.
-
-## Anti-Patterns
-
-- Table with no stated grain.
-- Fact table that mixes grains.
-- Surrogate key equals mutable business key.
-- SCD2 without valid-from, valid-to, current flag, and change detection.
-- Snowflaking by habit instead of measured need.
-- Metrics defined only in dashboard code.
+Centralize business logic and lineage. Use bridges when many-to-many meaning cannot be preserved more simply.
 
 ## Verification
 
-Before finalizing a model:
-
-- State grain for every table.
-- Prove keys are unique at the declared grain.
-- Check referential integrity and unknown-member behavior.
-- Validate SCD history: no gaps, overlaps, or duplicate current rows.
-- Reconcile core measures to source or prior layer.
-- Document metric definitions and lineage.
+Validate declared grain, key uniqueness, intended referential integrity, and metric reconciliation. For SCD/history designs, check valid intervals, current-row rules, change detection, and continuity when the business contract requires it; do not impose SCD checks on non-history models.

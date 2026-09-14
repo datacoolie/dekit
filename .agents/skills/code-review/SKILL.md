@@ -5,54 +5,30 @@ description: "Review code and data pipeline changes for correctness, security, p
 
 # Code Review
 
-Review adversarially. Findings require evidence from code, diff, tests, or runtime behavior.
+Review the requested scope adversarially and read-only. Findings require evidence from the diff, code, tests, or runtime behavior.
 
-## Scope Resolution
+## Scope
 
-- PR or URL: review PR diff.
-- Commit hash: review that commit.
-- `--pending`: review staged and unstaged changes.
-- `codebase`: scan broader architecture/risk surface.
-- No explicit target: review recent changes in context or ask for target.
+- PR/commit: inspect the requested diff and its relevant context.
+- `--pending`: include staged and unstaged changes without altering the index.
+- `codebase`: broaden only to the risk surface needed for the question.
+- No target: identify the recent change or ask for scope before broad scanning.
 
-## Review Order
-
-1. Establish scope and changed files.
-2. Check requirement/spec compliance.
-3. Scout affected dependents and edge cases.
-4. Review correctness, contracts, security, performance, tests.
-5. Separate blocking findings from non-blocking observations.
-
-## Checklist
-
-- Contract breaks: API, schema, grain, metric, config, behavior.
-- Error handling: no silent swallowing or hidden partial failure.
-- Validation: inputs checked at trust and data boundaries.
-- Security: no secrets, PII leaks, injection, auth/authz gaps.
-- Data correctness: idempotency, schema evolution, quality gates, reconciliation.
-- Performance: query fan-out, Spark collect/cartesian/skew, unbounded loops.
-- Maintainability: clear ownership, no duplicated business logic, no speculative abstraction.
-- Verification: tests or direct checks prove the changed behavior.
+Trace changed contracts, callers, data grain, error paths, trust boundaries, performance-sensitive paths, and verification. Do not report style preferences as defects or apply fixes unless separately authorized.
 
 ## Severity
 
-- Critical: security exposure, data loss, breaking contract, irreversible damage.
-- High: likely production failure, wrong results, missing required verification.
-- Medium: maintainability or performance risk with plausible impact.
-- Low: style or cleanup that does not block.
+Base severity on reachable impact, likelihood, and reversibility: critical (security/data loss/irreversible break), high (likely production failure or required gate missing), medium (plausible correctness/operation risk), low (non-blocking issue). A category alone is not severity.
 
 ## Output
 
-Lead with findings:
-
 ```markdown
 Findings:
-- [Critical|High|Medium|Low] file:line - issue, impact, evidence, fix
+- [severity] file:line — issue, impact, evidence, smallest safe fix
 
 Open questions:
 - ...
 
 Summary:
-- Reviewed: <scope>
-- Verification observed: <commands/results or missing>
+- Scope and verification observed: ...
 ```

@@ -1,172 +1,205 @@
 #!/usr/bin/env node
 
 /**
- * Topic Detection Script
- * Analyzes user queries to extract library name and topic keywords
- * Returns null for general queries, topic info for specific queries
+ * Parse the small amount of query syntax kept for backwards compatibility.
+ * New callers should pass library/topic explicitly to fetch-docs.js.
  */
 
 const { loadEnv } = require('./utils/env-loader');
 
-// Load environment
-const env = loadEnv();
-const DEBUG = env.DEBUG === 'true';
+const DEBUG = loadEnv().DEBUG === 'true';
 
-/**
- * Topic-specific query patterns
- */
-const TOPIC_PATTERNS = [
-  // "How do I use X in Y?"
-  /how (?:do i|to|can i) (?:use|implement|add|setup|configure) (?:the )?(.+?) (?:in|with|for) (.+)/i,
-
-  // "Y X strategies/patterns" - e.g., "Next.js caching strategies"
-  /(.+?) (.+?) (?:strategies|patterns|techniques|methods|approaches)/i,
-
-  // "X Y documentation" or "Y X docs"
-  /(.+?) (.+?) (?:documentation|docs|guide|tutorial)/i,
-
-  // "Using X with Y"
-  /using (.+?) (?:with|in|for) (.+)/i,
-
-  // "Y X guide/implementation/setup"
-  /(.+?) (.+?) (?:guide|implementation|setup|configuration)/i,
-
-  // "Implement X in Y"
-  /implement(?:ing)? (.+?) (?:in|with|for|using) (.+)/i,
+// Keep this list deliberately small. A heuristic must not turn an arbitrary
+// word in a request into a provider/library identifier.
+const LIBRARY_ALIASES = [
+  ['better auth', 'better-auth'],
+  ['react query', 'react-query'],
+  ['shadcn/ui', 'shadcn/ui'],
+  ['next.js', 'next.js'],
+  ['nextjs', 'next.js'],
+  ['tailwind css', 'tailwindcss'],
+  ['tailwindcss', 'tailwindcss'],
+  ['pyspark', 'pyspark'],
+  ['sqlalchemy', 'sqlalchemy'],
+  ['fastapi', 'fastapi'],
+  ['django', 'django'],
+  ['prisma', 'prisma'],
+  ['shadcn', 'shadcn/ui'],
+  ['remix', 'remix'],
+  ['astro', 'astro'],
+  ['react', 'react'],
+  ['vue', 'vue'],
+  ['svelte', 'svelte'],
+  ['angular', 'angular'],
+  ['express', 'express'],
+  ['vite', 'vite'],
+  ['webpack', 'webpack'],
+  ['spark', 'spark'],
 ];
 
-/**
- * General library query patterns (non-topic specific)
- */
-const GENERAL_PATTERNS = [
-  /(?:documentation|docs) for (.+)/i,
-  /(.+?) (?:getting started|quick ?start|introduction)/i,
-  /(?:how to use|learn) (.+)/i,
-  /(.+?) (?:api reference|overview|basics)/i,
-];
+const GENERAL_CUES = /\b(?:documentation|docs|guide|tutorial|api\s+reference|overview|basics|getting\s+started|quick\s*start|introduction)\b/i;
+const TOPIC_CUES = /\b(?:strategies|patterns|techniques|methods|approaches|setup|implementation|configuration|configuring|caching|routing|authentication|oauth)\b/i;
 
-/**
- * Normalize topic keyword
- * @param {string} topic - Raw topic string
- * @returns {string} Normalized topic keyword
- */
-function normalizeTopic(topic) {
-  return topic
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')  // Remove special chars
-    .replace(/\s+/g, '-')          // Replace spaces with hyphens
-    .split('-')[0]                 // Take first word for multi-word topics
-    .slice(0, 20);                 // Limit length
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * Normalize library name
- * @param {string} library - Raw library string
- * @returns {string} Normalized library name
- */
-function normalizeLibrary(library) {
-  return library
+function normalizeTopic(topic) {
+  return String(topic || '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s\-\/\.]/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-$/, '');
+}
+
+function normalizeLibrary(library) {
+  return String(library || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s\-\/.@_]/g, '')
     .replace(/\s+/g, '-');
 }
 
-/**
- * Detect if query is topic-specific or general
- * @param {string} query - User query
- * @returns {Object|null} Topic info or null for general query
- */
-function detectTopic(query) {
-  if (!query || typeof query !== 'string') {
-    return null;
-  }
+function findKnownLibrary(query) {
+  const candidates = findKnownLibraries(query);
+  return candidates[0] || null;
+}
 
-  const trimmedQuery = query.trim();
-
-  // Check general patterns first
-  for (const pattern of GENERAL_PATTERNS) {
-    const match = trimmedQuery.match(pattern);
+function findKnownLibraries(query) {
+  const candidates = [];
+  for (const [alias, library] of LIBRARY_ALIASES) {
+    const pattern = new RegExp(`(^|[^a-z0-9])${escapeRegExp(alias)}(?=$|[^a-z0-9])`, 'i');
+    const match = query.match(pattern);
     if (match) {
-      if (DEBUG) console.error('[DEBUG] Matched general pattern, no topic');
-      return null;
-    }
-  }
-
-  // Check topic-specific patterns
-  for (let i = 0; i < TOPIC_PATTERNS.length; i++) {
-    const pattern = TOPIC_PATTERNS[i];
-    const match = trimmedQuery.match(pattern);
-    if (match) {
-      const [, term1, term2] = match;
-
-      // Determine which is library and which is topic based on pattern
-      let topic, library;
-
-      // Pattern 0: "How do I use X in Y?" -> X is topic, Y is library
-      // Pattern 1: "Y X strategies" -> X is topic, Y is library
-      // Pattern 2-5: X is topic, Y is library in most cases
-
-      // For pattern 1 (strategies/patterns), term1 is library, term2 is topic
-      if (i === 1) {
-        topic = normalizeTopic(term2);
-        library = normalizeLibrary(term1);
-      } else {
-        // For other patterns, term1 is topic, term2 is library
-        topic = normalizeTopic(term1);
-        library = normalizeLibrary(term2);
-      }
-
-      if (DEBUG) {
-        console.error('[DEBUG] Matched topic pattern');
-        console.error('[DEBUG] Topic:', topic);
-        console.error('[DEBUG] Library:', library);
-      }
-
-      return {
-        query: trimmedQuery,
-        topic,
+      candidates.push({
+        alias,
         library,
-        isTopicSpecific: true,
-      };
+        index: match.index + match[1].length,
+        end: match.index + match[0].length,
+      });
     }
   }
+  candidates.sort((left, right) => {
+    if (left.index !== right.index) return left.index - right.index;
+    return right.alias.length - left.alias.length;
+  });
+  return candidates.filter((candidate) => !candidates.some((other) => (
+    other !== candidate
+    && other.index <= candidate.index
+    && other.end >= candidate.end
+    && other.alias.length > candidate.alias.length
+  )));
+}
 
-  if (DEBUG) console.error('[DEBUG] No pattern matched, treating as general');
+function cleanFragment(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^[,;:!?]+|[,;:!?]+$/g, '')
+    .trim();
+}
+
+function generalQuery(query, libraryMatch) {
+  const before = query.slice(0, libraryMatch.index).trim();
+  const after = query.slice(libraryMatch.end).trim();
+  if (!after && GENERAL_CUES.test(query)) return true;
+  if (GENERAL_CUES.test(after) || /^(?:docs?|documentation|guide|tutorial)$/i.test(after)) return true;
+  if (/^(?:documentation|docs?|guide|tutorial)\s+for$/i.test(before)) return true;
+  if (/^(?:how\s+(?:do\s+i|can\s+i|to)\s+use|learn|use)\s*$/i.test(before) && !after) return true;
+  return false;
+}
+
+function topicFromLibraryContext(query, libraryMatch) {
+  const before = cleanFragment(query.slice(0, libraryMatch.index));
+  const after = cleanFragment(query.slice(libraryMatch.end));
+
+  if (generalQuery(query, libraryMatch)) return null;
+
+  // "Library topic strategies" / "Library topic setup".
+  let match = after.match(/^(.+?)\s+(?:strategies|patterns|techniques|methods|approaches|setup|implementation|configuration|configuring)$/i);
+  if (match) return cleanFragment(match[1]);
+
+  // "How do I use topic in Library", "Using topic with Library", and
+  // "Implement topic in Library".
+  match = before.match(/^(?:how\s+(?:do\s+i|can\s+i|to)\s+)?(?:use|implement|implementing|add|setup|configure)\s+(?:the\s+)?(.+?)\s+(?:in|with|for|using)$/i);
+  if (match) return cleanFragment(match[1]);
+  match = before.match(/^using\s+(.+?)\s+(?:in|with|for)$/i);
+  if (match) return cleanFragment(match[1]);
+
+  // "How do I configure Prisma for PostgreSQL" keeps the library before
+  // the preposition, so the topic is on the right-hand side.
+  match = after.match(/^(?:in|with|for|using)\s+(.+)$/i);
+  if (match && /\b(?:how|use|implement|add|setup|configure|configuration)\b/i.test(before)) {
+    return cleanFragment(match[1]);
+  }
+
   return null;
 }
 
 /**
- * CLI entry point
+ * Detect a topic only when a known library gives the query an unambiguous
+ * anchor. General library queries continue to return null for compatibility.
  */
+function detectTopic(query) {
+  if (!query || typeof query !== 'string') return null;
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return null;
+
+  const libraryMatch = findKnownLibrary(trimmedQuery);
+  if (!libraryMatch) {
+    if (TOPIC_CUES.test(trimmedQuery) && DEBUG) {
+      console.error('[DEBUG] Topic cue found but no known library; caller must supply --library');
+    }
+    return null;
+  }
+  const distinctLibraries = new Set(findKnownLibraries(trimmedQuery).map((item) => item.library));
+  if (distinctLibraries.size > 1) return null;
+
+  const topic = normalizeTopic(topicFromLibraryContext(trimmedQuery, libraryMatch));
+  if (!topic) return null;
+
+  const result = {
+    query: trimmedQuery,
+    topic,
+    library: libraryMatch.library,
+    isTopicSpecific: true,
+    source: 'heuristic',
+  };
+
+  if (DEBUG) {
+    console.error('[DEBUG] Topic:', result.topic);
+    console.error('[DEBUG] Library:', result.library);
+  }
+  return result;
+}
+
+function extractLibrary(query) {
+  if (!query || typeof query !== 'string') return null;
+  const matches = findKnownLibraries(query.trim());
+  const distinctLibraries = [...new Set(matches.map((item) => item.library))];
+  return distinctLibraries.length === 1 ? distinctLibraries[0] : null;
+}
+
 function main() {
   const args = process.argv.slice(2);
-
   if (args.length === 0) {
     console.error('Usage: node detect-topic.js "<user query>"');
     process.exit(1);
   }
 
-  const query = args.join(' ');
-  const result = detectTopic(query);
-
-  if (result) {
-    console.log(JSON.stringify(result, null, 2));
-    process.exit(0);
-  } else {
-    console.log(JSON.stringify({ isTopicSpecific: false }, null, 2));
-    process.exit(0);
-  }
+  const result = detectTopic(args.join(' '));
+  console.log(JSON.stringify(result || { isTopicSpecific: false }, null, 2));
 }
 
-// Run if called directly
-if (require.main === module) {
-  main();
-}
+if (require.main === module) main();
 
 module.exports = {
   detectTopic,
+  extractLibrary,
+  findKnownLibrary,
+  findKnownLibraries,
   normalizeTopic,
   normalizeLibrary,
 };

@@ -9,5 +9,5 @@ Use the `research` skill. Research external sources; do not scout the codebase. 
 
 Prefer official docs, standards, release notes, source repositories, and primary case studies. Cite links, dates, versions, uncertainty, and 2-3 viable approaches when applicable.
 
-Write the requested research report only under the agreed report path. Do not modify product code. Any evidence-backed default is provisional; leave the project-specific verdict to the strategist.
+Write the requested research report only under the agreed report path (a canonical `wiki/research/` page when durable research is explicitly in scope). Do not modify product code. Separate external evidence from local scout observations and inference. Any evidence-backed default is provisional; leave the project-specific verdict to the strategist.
 """

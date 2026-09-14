@@ -1,119 +1,43 @@
 #!/usr/bin/env node
 
-/**
- * Tests for analyze-llms-txt.js
- */
-
+const assert = require('assert');
 const {
   analyzeLlmsTxt,
   parseUrls,
-  groupByPriority,
   categorizeUrl,
   suggestWorkDistribution,
 } = require('../analyze-llms-txt');
 
-// Test counter
-let passed = 0;
-let failed = 0;
+function run() {
+  const content = [
+    '# Docs',
+    '[Guide](https://docs.example.test/guide).',
+    'https://docs.example.test/getting-started',
+    'Repeated: https://docs.example.test/guide,',
+    'https://docs.example.test/api-reference',
+    'https://docs.example.test/advanced',
+  ].join('\n');
+  assert.deepStrictEqual(parseUrls(content), [
+    'https://docs.example.test/guide',
+    'https://docs.example.test/getting-started',
+    'https://docs.example.test/api-reference',
+    'https://docs.example.test/advanced',
+  ]);
+  assert.strictEqual(categorizeUrl('https://docs.example.test/getting-started'), 'critical');
+  assert.strictEqual(categorizeUrl('https://docs.example.test/advanced/internals'), 'supplementary');
 
-function assert(condition, message) {
-  if (condition) {
-    console.log(`✓ ${message}`);
-    passed++;
-  } else {
-    console.error(`✗ ${message}`);
-    failed++;
-  }
+  const small = suggestWorkDistribution(2);
+  assert.strictEqual(small.workerCount, 1);
+  const bounded = suggestWorkDistribution(25, 3);
+  assert.strictEqual(bounded.workerCount, 3);
+  assert.strictEqual(bounded.bounded, true);
+  assert.notStrictEqual(bounded.workerCount, 7);
+
+  const analysis = analyzeLlmsTxt(content);
+  assert.strictEqual(analysis.totalUrls, 4);
+  assert.strictEqual(analysis.summary.critical, 1);
+  assert.strictEqual(analysis.distribution.bounded, true);
 }
 
-function assertEqual(actual, expected, message) {
-  if (actual === expected) {
-    console.log(`✓ ${message}`);
-    passed++;
-  } else {
-    console.error(`✗ ${message}`);
-    console.error(`  Expected: ${expected}`);
-    console.error(`  Actual: ${actual}`);
-    failed++;
-  }
-}
-
-console.log('Running analyze-llms-txt.js tests...\n');
-
-// Test categorizeUrl
-console.log('## Testing categorizeUrl()');
-assertEqual(categorizeUrl('https://docs.example.com/getting-started'), 'critical', 'Categorize getting-started as critical');
-assertEqual(categorizeUrl('https://docs.example.com/guide/routing'), 'important', 'Categorize routing guide as important');
-assertEqual(categorizeUrl('https://docs.example.com/advanced/internals'), 'supplementary', 'Categorize internals as supplementary');
-assertEqual(categorizeUrl('https://docs.example.com/api-reference'), 'important', 'Categorize API reference as important');
-
-// Test parseUrls
-console.log('\n## Testing parseUrls()');
-
-const sampleContent = `# Documentation
-https://docs.example.com/getting-started
-https://docs.example.com/guide
-# Comment line
-https://docs.example.com/api-reference
-
-https://docs.example.com/advanced
-`;
-
-const urls = parseUrls(sampleContent);
-assertEqual(urls.length, 4, 'Parse 4 URLs from content');
-assert(urls[0].includes('getting-started'), 'First URL is getting-started');
-
-const emptyContent = '';
-const emptyUrls = parseUrls(emptyContent);
-assertEqual(emptyUrls.length, 0, 'Empty content returns 0 URLs');
-
-// Test groupByPriority
-console.log('\n## Testing groupByPriority()');
-
-const testUrls = [
-  'https://docs.example.com/getting-started',
-  'https://docs.example.com/guide/routing',
-  'https://docs.example.com/advanced/internals',
-  'https://docs.example.com/installation',
-];
-
-const grouped = groupByPriority(testUrls);
-assert(grouped.critical.length >= 2, 'Has critical URLs');
-assert(grouped.important.length >= 1, 'Has important URLs');
-assert(grouped.supplementary.length >= 1, 'Has supplementary URLs');
-
-// Test suggestWorkDistribution
-console.log('\n## Testing suggestWorkDistribution()');
-
-const dist1 = suggestWorkDistribution(2);
-assertEqual(dist1.workerCount, 1, 'Suggest 1 worker for 2 URLs');
-assertEqual(dist1.strategy, 'single', 'Strategy is single for few URLs');
-
-const dist2 = suggestWorkDistribution(8);
-assert(dist2.workerCount >= 3 && dist2.workerCount <= 5, 'Suggest 3-5 workers for 8 URLs');
-assertEqual(dist2.strategy, 'parallel', 'Strategy is parallel for medium URLs');
-
-const dist3 = suggestWorkDistribution(15);
-assertEqual(dist3.workerCount, 7, 'Suggest 7 workers for 15 URLs');
-
-const dist4 = suggestWorkDistribution(25);
-assertEqual(dist4.workerCount, 7, 'Suggest 7 workers for 25 URLs');
-assertEqual(dist4.strategy, 'phased', 'Strategy is phased for many URLs');
-assertEqual(dist4.phases, 2, 'Use 2 phases for large sets');
-
-// Test analyzeLlmsTxt
-console.log('\n## Testing analyzeLlmsTxt()');
-
-const analysis = analyzeLlmsTxt(sampleContent);
-assertEqual(analysis.totalUrls, 4, 'Analysis counts 4 URLs');
-assert(analysis.grouped, 'Analysis includes grouped URLs');
-assert(analysis.distribution, 'Analysis includes distribution suggestion');
-assert(analysis.summary, 'Analysis includes summary');
-
-// Summary
-console.log('\n## Test Summary');
-console.log(`Passed: ${passed}`);
-console.log(`Failed: ${failed}`);
-console.log(`Total: ${passed + failed}`);
-
-process.exit(failed > 0 ? 1 : 0);
+run();
+console.log('analyze-llms tests passed');

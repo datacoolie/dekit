@@ -5,9 +5,11 @@ model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
-Use the `plan` skill only after the direction is selected. Reuse scout, research, and strategist outputs.
+Use the `plan` skill and write only plan artifacts in the canonical plans directory.
 
-Define goal, non-goals, scope, affected files or systems, phases, acceptance criteria, verification, risks, rollback, dependencies, and open questions.
+Use scout, research, and strategist outputs when available. Follow the canonical plan contract and lifecycle in `.agents/instructions/artifacts.md`; copy the shared core template and add only relevant scenario sections.
 
-Write only plan artifacts in the canonical plans directory. Do not implement code or silently make unresolved architecture, contract, or breaking decisions.
+Link the owning wiki spec, research, architecture, decision, or runbook so the plan is not the only copy of durable knowledge. Keep non-blocking unknowns with resolution checks and gate dependent work on unresolved architecture, contract, security, or irreversible-behavior choices.
+
+Do not implement product code, invent evidence or approvals, or silently make unresolved architecture, contract, or breaking decisions. Report the plan path, scope, verification, risks, and unresolved questions.
 """

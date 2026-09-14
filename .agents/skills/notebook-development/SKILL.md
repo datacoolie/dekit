@@ -5,48 +5,17 @@ description: "Write and organize production-grade notebooks across Fabric, Datab
 
 # Notebook Development
 
-Use this skill when notebooks are the execution or exploration surface.
+Keep notebooks reproducible and fit for their actual role.
 
-## Structure
+## Route
 
-- Title/purpose cell: what this notebook does and expected inputs/outputs.
-- Setup cell: imports, session config, helpers.
-- Parameters cell: environment, date/window, source/target names.
-- Load cells: read inputs with explicit schema/contract.
-- Transform cells: deterministic logic with no hidden UI state.
-- Validate cells: row counts, schema, quality checks, reconciliation.
-- Write cells: idempotent output behavior.
+- Exploratory notebook: make inputs, assumptions, filters, and outputs visible; do not add scheduler/write ceremony that is not needed.
+- Scheduled/production notebook: use injected parameters, explicit schemas, deterministic transforms, validation before writes, idempotent outputs, and scheduler/session parity.
+- Keep platform utilities at I/O/orchestration boundaries and extract shared business logic into modules when reuse or testing warrants it.
+- Never commit credentials, personal paths, hidden kernel state, or accidental display-only filters.
 
-## Rules
-
-- Notebook must run top-to-bottom after kernel restart.
-- Parameters must be injected, not edited inline for each run.
-- No credentials, secrets, or personal paths in cells.
-- Avoid global mutable state across cells.
-- Keep display/debug cells separate from production write path.
-- Extract reusable logic into modules when notebooks become production dependencies.
-
-## Platform Notes
-
-- Fabric/Databricks utilities are allowed at orchestration/I/O boundaries only.
-- Keep core transform logic portable where practical.
-- Use widgets/parameters for scheduled jobs.
-- Persist only intentional outputs; temporary views/tables need lifecycle cleanup.
-
-## Anti-Patterns
-
-- Out-of-order cell dependency.
-- Manual rerun instructions as operational process.
-- Hidden filters in exploratory cells reused for production.
-- Writing outputs before validation.
-- Notebook-only business logic used by multiple pipelines.
+Do not run every costly or destructive cell merely to satisfy a blanket run-all rule; run the relevant path and state what remains unverified.
 
 ## Verification
 
-Before finishing notebook work:
-
-- Restart kernel/session and run all cells in order.
-- Verify parameters work for at least one representative run.
-- Confirm output idempotency.
-- Run validation cells and inspect failures.
-- Confirm scheduled/orchestrated execution path matches interactive path.
+For production scope, restart the kernel/session, inject a representative parameter set, run the relevant path in order, inspect validation/output, and rerun to prove idempotency. For exploration, verify the stated analysis path and assumptions instead.

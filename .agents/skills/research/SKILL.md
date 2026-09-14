@@ -5,61 +5,40 @@ description: "Research technical options with source-backed recommendations. Use
 
 # Research
 
-Use this skill to answer technical questions with evidence and a ranked recommendation.
+Answer external-fact and technology questions with bounded, source-backed evidence.
 
-Research is convergent and source-backed. It is not for open-ended ideation.
+## Route
 
-## Role Boundary
+- Factual lookup or mechanism explanation: answer the question; alternatives and a verdict are optional.
+- Comparative choice: define the decision and criteria before collecting sources, then compare viable options.
+- Use `scout` for local implementation facts and `wiki` for existing project knowledge before external research when they can answer part of the question.
+- A supplied report may be synthesized; only research its explicit gaps.
 
-- Use `research` when the answer depends on current facts, external sources, standards, benchmarks, vendor behavior, or source-backed recommendations.
-- Use `brainstorm` first when the user is still exploring ideas, framing the problem, or comparing unsourced solution directions.
-- Use `plan` after a recommendation is selected and the implementation is Standard or Complex.
-- If the question can be answered from local code or project memory, use `scout`, `wiki`, or the relevant implementation skill before external research.
+## Evidence
 
-## Scope
+- Prefer official documentation, standards, release notes, source repositories, and dated case studies.
+- Check version, publication date, provider scope, and recency needs.
+- Cross-check material or high-stakes claims; label inference, disagreement, and unverified behavior.
+- Bound the search and stop when the decision criteria are covered.
+- Distinguish external evidence, local observations, inference, and recommendation. Do not treat an external default as the project's accepted decision.
 
-- Define the decision being made.
-- State recency needs.
-- Choose evaluation criteria before collecting sources.
-- Bound the research depth; do not collect sources indefinitely.
+## Recommendation
 
-## Source Rules
+Use correctness/fit, operations, performance, security, cost, maturity, lock-in, and migration risk only when relevant. Present 2–3 options only when a choice exists; mark a provisional recommendation when evidence is incomplete. Do not present brainstorming guesses as facts.
 
-- Prefer official docs, standards, release notes, source repositories, and production case studies.
-- Use tutorials/blogs only as supporting context.
-- Cross-check important claims against independent sources when possible.
-- Note publication dates and version applicability.
-- Call out uncertainty and unverified claims.
-
-## Analysis
-
-Compare options on criteria relevant to the task:
-
-- Correctness and fit.
-- Operational complexity.
-- Performance and scale.
-- Security and compliance.
-- Cost.
-- Maturity and community health.
-- Migration and lock-in risk.
-- Team familiarity.
-
-When giving suggestions or proposals, present 2-3 viable options unless there is only one safe or practical choice. Mark one option as recommended and explain why it is the best default for the user's context.
+When an explicitly assigned discovery/delivery workflow needs durable research, persist the concise conclusion and source links in the owning `wiki/research/` page or hand it to the coordinator for consolidation. Standalone research remains non-mutating unless saving is requested.
 
 ## Output
 
 ```markdown
-Recommendation: <recommended option and reason>
-Why:
-- ...
-Options considered:
-| Option | Pros | Cons | Risk |
+Question/decision: <scope>
+Recommendation: <answer or option and confidence>
+Why: <evidence tied to the request>
+Options considered: <only for a decision>
 Evidence:
-- <source/link/date>
+- <source, version/date, claim>
 Implementation notes:
 - ...
 Open questions:
 - ...
 ```
-
-Do not produce a long reading list without a decision.

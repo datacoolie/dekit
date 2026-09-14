@@ -1,84 +1,131 @@
 #!/usr/bin/env node
 
-/**
- * Tests for fetch-docs.js
- */
+const assert = require('assert');
+const { EventEmitter } = require('events');
+const {
+  fetchDocs,
+  buildContext7Url,
+  getUrlVariations,
+  normalizeRequest,
+  requestUrl,
+} = require('../fetch-docs');
 
-const { buildContext7Url, getUrlVariations } = require('../fetch-docs');
-
-// Test counter
-let passed = 0;
-let failed = 0;
-
-function assert(condition, message) {
-  if (condition) {
-    console.log(`✓ ${message}`);
-    passed++;
-  } else {
-    console.error(`✗ ${message}`);
-    failed++;
-  }
+function fakeGetFactory(responses) {
+  return (url, options, callback) => {
+    const request = new EventEmitter();
+    const next = responses.shift() || { statusCode: 404, body: '' };
+    request.destroy = () => {};
+    request.setTimeout = (timeoutMs, handler) => {
+      if (next.timeout) process.nextTick(handler);
+    };
+    const response = new EventEmitter();
+    response.statusCode = next.statusCode;
+    response.headers = next.headers || {};
+    response.resume = () => {};
+    if (!next.timeout) {
+      process.nextTick(() => {
+        callback(response);
+        if (next.body) response.emit('data', Buffer.from(next.body));
+        response.emit('end');
+      });
+    }
+    return request;
+  };
 }
 
-function assertEqual(actual, expected, message) {
-  if (actual === expected) {
-    console.log(`✓ ${message}`);
-    passed++;
-  } else {
-    console.error(`✗ ${message}`);
-    console.error(`  Expected: ${expected}`);
-    console.error(`  Actual: ${actual}`);
-    failed++;
-  }
+async function run() {
+  const previousApiKey = process.env.CONTEXT7_API_KEY;
+  process.env.CONTEXT7_API_KEY = 'test-key';
+  assert.strictEqual(buildContext7Url('vercel/next.js'), 'https://context7.com/vercel/next.js/llms.txt');
+  assert.strictEqual(
+    buildContext7Url('vercel/next.js', 'date picker', 'v15.1.8'),
+    'https://context7.com/vercel/next.js/v15.1.8/llms.txt?topic=date-picker',
+  );
+  const variations = await getUrlVariations('next.js', 'cache');
+  assert.deepStrictEqual(variations, [
+    'https://context7.com/vercel/next.js/llms.txt?topic=cache',
+    'https://context7.com/vercel/next.js/llms.txt',
+  ]);
+
+  const explicit = normalizeRequest({ library: 'next.js', topic: 'date picker', version: 'v15.1.8' });
+  assert.deepStrictEqual(
+    { library: explicit.library, topic: explicit.topic, version: explicit.version, explicit: explicit.explicit },
+    { library: 'next.js', topic: 'date-picker', version: 'v15.1.8', explicit: true },
+  );
+  assert.strictEqual(normalizeRequest('unknown framework docs').error.code, 'unsupported-input');
+
+  const calls = [];
+  const success = await fetchDocs({
+    library: 'next.js',
+    topic: 'routing',
+    transport: async (url, options) => {
+      calls.push({ url, options });
+      return { statusCode: 200, body: '# routing docs', url };
+    },
+  });
+  assert.strictEqual(success.success, true);
+  assert.strictEqual(success.topicSpecific, true);
+  assert.strictEqual(success.content, '# routing docs');
+  assert.strictEqual(calls[0].options.headers.Authorization, 'Bearer test-key');
+
+  let attempt = 0;
+  const fallback = await fetchDocs({
+    library: 'next.js',
+    topic: 'routing',
+    transport: async (url) => {
+      attempt += 1;
+      return attempt === 1 ? { statusCode: 404, body: '' } : { statusCode: 200, body: 'base docs', url };
+    },
+  });
+  assert.strictEqual(fallback.success, true);
+  assert.strictEqual(attempt, 2);
+
+  const limited = await fetchDocs({
+    library: 'next.js',
+    transport: async () => ({ statusCode: 429, body: 'do not expose' }),
+  });
+  assert.strictEqual(limited.success, false);
+  assert.strictEqual(limited.code, 'rate-limited');
+  assert(!JSON.stringify(limited).includes('do not expose'));
+
+  const unauthorized = await fetchDocs({
+    url: 'https://docs.example.test/llms.txt',
+    transport: async (url, options) => {
+      assert.strictEqual(options.headers.Authorization, undefined);
+      return { statusCode: 401, body: '' };
+    },
+  });
+  assert.strictEqual(unauthorized.code, 'unauthorized');
+
+  const invalid = await fetchDocs({ url: 'http://docs.example.test/llms.txt' });
+  assert.strictEqual(invalid.code, 'unsupported-url');
+
+  await assert.rejects(
+    requestUrl('https://context7.com/large', {
+      maxBytes: 3,
+      requestGet: fakeGetFactory([{ statusCode: 200, body: 'large' }]),
+    }),
+    (error) => error.code === 'response-too-large',
+  );
+  await assert.rejects(
+    requestUrl('https://context7.com/slow', {
+      timeoutMs: 1,
+      requestGet: fakeGetFactory([{ timeout: true }]),
+    }),
+    (error) => error.code === 'timeout',
+  );
+  const redirected = await requestUrl('https://context7.com/redirect', {
+    requestGet: fakeGetFactory([
+      { statusCode: 302, headers: { location: 'https://docs.example.test/final' } },
+      { statusCode: 200, body: 'final' },
+    ]),
+  });
+  assert.strictEqual(redirected.body, 'final');
+  if (previousApiKey === undefined) delete process.env.CONTEXT7_API_KEY;
+  else process.env.CONTEXT7_API_KEY = previousApiKey;
 }
 
-console.log('Running fetch-docs.js tests...\n');
-
-// Test buildContext7Url
-console.log('## Testing buildContext7Url()');
-
-assertEqual(
-  buildContext7Url('vercel/next.js'),
-  'https://context7.com/vercel/next.js/llms.txt',
-  'Build URL for GitHub repo'
-);
-
-assertEqual(
-  buildContext7Url('vercel/next.js', 'cache'),
-  'https://context7.com/vercel/next.js/llms.txt?topic=cache',
-  'Build URL with topic parameter'
-);
-
-assertEqual(
-  buildContext7Url('shadcn-ui/ui', 'date'),
-  'https://context7.com/shadcn-ui/ui/llms.txt?topic=date',
-  'Build URL for shadcn with topic'
-);
-
-// Test getUrlVariations
-console.log('\n## Testing getUrlVariations()');
-
-async function testUrlVariations() {
-  const urls1 = await getUrlVariations('next.js', 'cache');
-  assert(urls1.length >= 2, 'Returns multiple URL variations with topic');
-  assert(urls1[0].includes('?topic=cache'), 'First URL has topic parameter');
-  assert(!urls1[1].includes('?topic='), 'Second URL has no topic parameter');
-
-  const urls2 = await getUrlVariations('shadcn/ui');
-  assert(urls2.length >= 1, 'Returns URL variations without topic');
-  assert(!urls2[0].includes('?topic='), 'URL has no topic parameter');
-
-  const urls3 = await getUrlVariations('astro', 'routing');
-  assert(urls3.length >= 2, 'Returns variations for known library');
-  assertEqual(urls3[0], 'https://context7.com/withastro/astro/llms.txt?topic=routing', 'Maps Astro correctly');
-}
-
-testUrlVariations().then(() => {
-  // Summary
-  console.log('\n## Test Summary');
-  console.log(`Passed: ${passed}`);
-  console.log(`Failed: ${failed}`);
-  console.log(`Total: ${passed + failed}`);
-
-  process.exit(failed > 0 ? 1 : 0);
+run().then(() => console.log('fetch-docs tests passed')).catch((error) => {
+  console.error(error);
+  process.exit(1);
 });

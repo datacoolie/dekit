@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -79,6 +80,17 @@ def parse_scalar(value: str) -> Any:
         return ""
     if value in {"[]", "{}"}:
         return [] if value == "[]" else {}
+    if value.startswith("{") and value.endswith("}"):
+        inner = value[1:-1].strip()
+        if not inner:
+            return {}
+        mapping: dict[str, Any] = {}
+        for part in inner.split(","):
+            if ":" not in part:
+                return value
+            key, child = part.split(":", 1)
+            mapping[strip_quotes(key.strip())] = parse_scalar(child.strip())
+        return mapping
     if value.startswith("[") and value.endswith("]"):
         inner = value[1:-1].strip()
         if not inner:
@@ -149,7 +161,10 @@ def parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
 
         if line.startswith("- "):
             item_text = line[2:].strip()
-            if ":" in item_text:
+            # Treat only ``key: value`` list items as mappings. URLs such as
+            # ``https://...`` and Windows paths such as ``C:\\...`` are scalar
+            # values and must remain searchable/citable source entries.
+            if re.match(r"^[^:]+:\s+", item_text):
                 key, value = item_text.split(":", 1)
                 current_list_item = {key.strip(): parse_scalar(value.strip())}
                 if not isinstance(data.get(current_key), list):
@@ -171,6 +186,19 @@ def parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
             data[current_key].append(parse_scalar(line))
 
     flush_block()
+
+    # The supported frontmatter subset also permits a nested mapping such as
+    # provenance: {extracted: 0.8, inferred: 0.1}. The older line parser
+    # represented that mapping as strings, which made scoring silently ignore
+    # the ambiguity value. Convert only unambiguous ``key: value`` scalar lists
+    # so ordinary tags and list-of-mapping fields remain unchanged.
+    for key, value in list(data.items()):
+        if key == "provenance" and isinstance(value, list) and value and all(isinstance(item, str) and ":" in item for item in value):
+            mapping: dict[str, Any] = {}
+            for item in value:
+                child_key, child_value = item.split(":", 1)
+                mapping[child_key.strip()] = parse_scalar(child_value.strip())
+            data[key] = mapping
     return data, body
 
 
@@ -202,6 +230,7 @@ def should_skip(path: Path, root: Path, include_generated: bool) -> bool:
 
 
 def load_pages(root: Path, include_generated: bool) -> list[Page]:
+    root = root.resolve()
     if not root.exists():
         return []
     pages = []
@@ -382,6 +411,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Rank wiki pages for selective AI reads.")
     parser.add_argument("query", help="Search query or task context.")
     parser.add_argument("--wiki-root", default="wiki", help="Wiki root directory.")
+    parser.add_argument("--root", default=None, help="Repository root used for relative paths (defaults to the Git top-level).")
     parser.add_argument("--mode", choices=["fast", "focused", "verified", "exploratory"], default="focused")
     parser.add_argument("--limit", type=int, default=8)
     parser.add_argument("--include-generated", action="store_true", help="Include staging, exports, and inbox pages.")
@@ -389,10 +419,34 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def repository_root(start: Path | None = None) -> Path:
+    anchor = (start or Path.cwd()).resolve()
+    result = subprocess.run(
+        ["git", "-C", str(anchor), "rev-parse", "--show-toplevel"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return Path(result.stdout.strip()).resolve()
+    return anchor
+
+
+def resolve_cli_path(value: str, root: Path) -> Path:
+    path = Path(value).expanduser()
+    return path.resolve() if path.is_absolute() else (root / path).resolve()
+
+
 def main() -> int:
     args = parse_args()
+    root = resolve_cli_path(args.root, repository_root()) if args.root else repository_root()
+    wiki_root = resolve_cli_path(args.wiki_root, root)
+    if args.limit <= 0:
+        print("Error: --limit must be greater than zero.")
+        return 2
     result = search(
-        root=Path(args.wiki_root),
+        root=wiki_root,
         query=args.query,
         mode=args.mode,
         limit=args.limit,

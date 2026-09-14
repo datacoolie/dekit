@@ -49,7 +49,6 @@ Do not bulk-load all instructions by default.
 | `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
 | `.agents/instructions/wiki.md` | Internal LLM wiki and project memory |
 | `.agents/instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
-| `.agents/instructions/datacoolie.md` | Datacoolie workspace bootstrap and lifecycle |
 
 Platform-specific files may wrap these instructions, but must not duplicate or redefine them.
 
@@ -57,11 +56,13 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 
 - Start with task triage: Trivial, Simple, Standard, or Complex.
 - Resolve repository paths from the repository root, never from the current working directory.
+- For a new session, read the root entrypoint and applicable instructions, then `wiki/index.md` and relevant current wiki pages when that project wiki exists, before opening an active plan or scouting source for drift.
 - Act autonomously inside scope.
 - Stop for breaking changes, irreversible operations, architecture decisions, or uncharted territory.
 - Modify source files directly. No side-by-side final/enhanced copies.
 - Preserve user changes. Do not revert unrelated work.
 - Verify before reporting done.
+- Keep durable intent, rationale, current architecture, and operational knowledge outside disposable plan directories; completed plans may be deleted manually.
 - Reports must be concise.
 - Spawn subagents when needed, but do not spawn subagents for trivial or simple tasks.
 
@@ -76,8 +77,8 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 
 - `<root>/AGENTS.md` - repository entrypoint for AI runners.
 - `<root>/.agents/instructions/` - canonical portable instructions.
-- `<root>/wiki/` - internal technical knowledge for engineers and AI runners, when present.
-- `<root>/plans/` - implementation plans and reports.
+- `<root>/wiki/` - internal technical knowledge for engineers and AI runners, when present. Use a shallow `index.md` plus populated `specs/`, `research/`, `architecture/`, `decisions/`, and `runbooks/` areas as needed.
+- `<root>/plans/` - disposable implementation plans and reports; do not make them the only home of durable knowledge.
 - `<root>/docs/` - user-facing documentation, when present.
 - `<root>/.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
 

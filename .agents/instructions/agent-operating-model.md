@@ -53,6 +53,8 @@ A nested directory with a repository-level name is permitted only when an existi
 | Standard | Multi-file behavior, new feature, schema change | Plan + implement + test + review |
 | Complex | Cross-system, migration, parallel work, high risk | Plan + staged execution + verification gates |
 
+Choose the level from uncertainty, impact, dependency, and recovery risk, not file count alone. A mechanical change across many files can remain Simple; a small change to a checkpoint, contract, or security boundary can require Standard or Complex planning. An explicit user request for a plan is sufficient to create one.
+
 ## Research To Implementation
 
 When a user moves from research, discussion, or design review into implementation, classify the implementation request again before editing files.
@@ -64,6 +66,34 @@ A request to implement immediately does not skip required planning.
 - Complex: create a staged plan with verification gates. Stop for approval when the plan changes architecture, contracts, data stages, migration strategy, or irreversible behavior.
 - Prior research can be reused as context, but it is not a substitute for an implementation plan unless it already contains scope, acceptance criteria, affected files or systems, risks, and verification.
 - Complexity is based on implementation blast radius, not conversation length.
+
+## Discovery Readiness
+
+Move from brainstorm/scout/research into planning when the outcome and constraints are clear, a direction is selected with enough evidence for consequential choices, and no unresolved question blocks the scope being made actionable. Non-blocking unknowns may remain when they have an owner, a resolution check, spike, or verification gate.
+
+- An unresolved architecture, contract, security, or irreversible-behavior choice gates dependent implementation; do not silently decide it in the plan.
+- An explicit plan request may produce a draft with open gates. A draft or accepted plan does not by itself authorize implementation.
+- Use `scout` for local behavior, `research` for external facts, and `brainstorm` for framing/trade-offs as the question changes. Do not keep researching after the decision criteria are covered.
+
+## Durable Knowledge and Resume
+
+During an explicitly assigned discovery or delivery workflow, record meaningful durable deltas in the relevant wiki page while work progresses: verified current behavior, important constraints, accepted or rejected choices, changed assumptions, and useful operational findings. Do not record every turn or create a transcript.
+
+- The coordinator owns consolidation. Read-only scout and strategist can return evidence and proposals; delegated writers modify only assigned canonical artifacts.
+- Keep execution progress in the active plan. Wiki knowledge must not depend on an active or completed plan, `.scratch/`, or an expiring report.
+- A standalone question, lookup, review, wiki query, or status request remains read-only unless saving is explicitly requested. Missing wiki initialization is not an excuse to write into a disposable location.
+- At a new session, read `AGENTS.md`, `README.md`, applicable instructions, `wiki/index.md` and the short architecture overview when present. Then read the relevant spec, effective decisions, and active plan if it exists; use scout to check source/config/tests/diff for drift. Load research and superseded decisions only when they affect the next action.
+- If multiple work items are plausible, ask which one to resume. If an active plan is missing, use durable knowledge and source evidence, but do not invent progress, approval, or authorization.
+
+## Decision Reopening
+
+Reuse an accepted decision across sessions. Reopen it only when relevant new evidence appears, a constraint changes, an assumption fails, or the user asks. Source drift alone prompts verification and discrepancy reporting, not an automatic redesign.
+
+Record the trigger, affected scope, and proposed replacement; preserve the old rationale and approval scope. A recommendation is not an accepted decision.
+
+## Evidence-Based Feedback
+
+When a recurring failure or workflow friction is observed, capture the concrete evidence, identify the canonical owner, and propose the smallest correction with a verification check. Project-specific knowledge belongs in the relevant wiki page; temporary task detail stays in the plan; an untested idea remains a hypothesis. Do not silently turn one incident into a universal rule or modify dekit instructions outside the assigned scope.
 
 ## Skill Use
 
@@ -93,16 +123,13 @@ Use `<root>/.scratch/` for temporary local artifacts, experiments, generated rep
 
 ## Completion Report
 
-Wiki maintenance is user-directed by default. Completing a task or plan does not by itself trigger a wiki update.
+Completing a task or plan does not by itself require a wiki write. In an explicitly assigned discovery or delivery workflow, update the relevant wiki page whenever a meaningful durable fact, decision, or verified behavior changes; do not wait for a major change or the end of the plan. Standalone questions and read-only modes remain non-mutating.
 
-Before reporting substantial implementation done, first assess the implemented diff and verified task artifacts against the automatic wiki threshold. Do not read, search, or compare the existing wiki during this initial assessment.
+Before reporting substantial implementation done, assess the diff and verification artifacts. Compare the relevant wiki pages when the workflow owns persistence, or when the implementation changes architecture, system boundaries, data flow, deployment topology, durable contracts, or major cross-cutting operational behavior. The broad threshold triggers a wider review, not an unconditional write.
 
-Trigger an automatic wiki review only when the verified implementation:
+Before closing, confirm essential knowledge and verification evidence do not depend only on `plans/<plan-id>` or `.scratch/`. A completed plan may be manually deleted at any time; do not create deletion hooks, require a cleanup step, or recreate it when absent.
 
-- Changes architecture, system boundaries, data flow, or deployment topology; or
-- Is a major cross-cutting change that materially affects multiple components, durable contracts, or operational behavior.
-
-For all other changes, review or update the wiki only when the user explicitly requests it. A completed plan is not implemented behavior and never triggers an automatic review. When the user requests an update or the threshold above is met, read only the smallest relevant wiki context and compare it with the verified change. Update the wiki only when that comparison finds missing, stale, or contradictory knowledge; otherwise leave it unchanged. The threshold triggers wiki comparison, not an unconditional write. Do not create a missing wiki automatically; recommend initialization instead.
+When the relevant wiki page is missing and durable persistence is part of the assigned scope, initialize only the minimum useful structure. Otherwise report the missing persistence target instead of silently writing a disposable substitute.
 
 End substantial work with:
 

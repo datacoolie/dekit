@@ -11,6 +11,7 @@ const tests = [
   'test-detect-topic.js',
   'test-fetch-docs.js',
   'test-analyze-llms.js',
+  'test-env-loader.js',
 ];
 
 let totalPassed = 0;
