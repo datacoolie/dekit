@@ -39,11 +39,12 @@ Do not bulk-load all instructions by default.
 
 ## Instruction Source Of Truth
 
-`.agents/instructions/` is canonical and tool-agnostic.
+`.agents/instructions/` is canonical. Shared rules are tool-agnostic; runner-specific guidance is explicitly scoped.
 
 | File | Use when |
 |---|---|
 | `.agents/instructions/agent-operating-model.md` | Any task: scope, autonomy, handoff, reporting |
+| `.agents/instructions/codex-delegation.md` | Codex only: considering or performing subagent delegation |
 | `.agents/instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
 | `.agents/instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
 | `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
@@ -64,7 +65,7 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 - Verify before reporting done.
 - Keep durable intent, rationale, current architecture, and operational knowledge outside disposable plan directories; completed plans may be deleted manually.
 - Reports must be concise.
-- Spawn subagents when needed, but do not spawn subagents for trivial or simple tasks.
+- Assess delegation proactively under `.agents/instructions/agent-operating-model.md`; for Codex, also read `.agents/instructions/codex-delegation.md` when considering delegation.
 
 ## Skill Routing Notes
 

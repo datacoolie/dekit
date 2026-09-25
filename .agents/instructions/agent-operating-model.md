@@ -55,6 +55,15 @@ A nested directory with a repository-level name is permitted only when an existi
 
 Choose the level from uncertainty, impact, dependency, and recovery risk, not file count alone. A mechanical change across many files can remain Simple; a small change to a checkpoint, contract, or security boundary can require Standard or Complex planning. An explicit user request for a plan is sufficient to create one.
 
+## Delegation
+
+For Standard or Complex work, proactively delegate bounded subtasks when specialization, independent verification, or parallel work justifies the coordination cost. The user need not name an agent. Handle Trivial and Simple work directly unless the user explicitly requests delegation.
+
+- Choose by the subtask's difficulty and required capability, not the parent model's tier. Prefer configured lower-cost specialists for suitable work; retain synthesis and consequential decisions with the coordinator.
+- Give each child a focused question, minimal context, ownership, and acceptance criteria. Avoid full-history copies, duplicate exploration, and concurrent writes to the same files.
+- Reuse an existing specialist for related follow-ups. Parallelize independent work only; do useful non-overlapping work locally while children run.
+- Check returned evidence before integration. Escalate only the unresolved portion when a specialist lacks capability; do not silently upgrade every child or claim savings without measurement.
+
 ## Research To Implementation
 
 When a user moves from research, discussion, or design review into implementation, classify the implementation request again before editing files.

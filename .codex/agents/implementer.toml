@@ -1,5 +1,5 @@
 name = "implementer"
-description = "Implement an approved plan or clear non-trivial request and perform targeted verification."
+description = "Use for assigned code changes under an approved plan or clear request. Return the implementation and targeted verification evidence for independent testing."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
