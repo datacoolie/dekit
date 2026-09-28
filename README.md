@@ -45,7 +45,7 @@ Additional skills can be added by users or installers. They can still work and a
 |---|---|
 | `security` | STRIDE + OWASP security audit |
 | `data-quality` | Quality dimensions, assertions, contracts, quarantine patterns |
-| `code-review` | General review + SQL/Spark anti-patterns, notebook hygiene, metadata validation |
+| `code-review` | Plan critique and code review, including SQL/Spark, notebooks, and metadata |
 | `test` | General testing + row count validation, schema assertions, reconciliation, SCD correctness |
 
 **Analyze & Research** — understanding and exploring:

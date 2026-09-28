@@ -19,6 +19,7 @@ The legacy paths remain selectors for compatibility. They are not independent te
 - Put checked evidence and assumptions near the decision they affect.
 - Mark unknowns and the check that resolves them; do not guess a root cause, filename, estimate, approval, or result.
 - Add a scenario section when its concern changes correctness, recovery, rollout, or verification.
+- Use the design-contract and plan-review sections only for their stated triggers. Link durable contract details, assess readiness per work item, and keep task-to-acceptance links lightweight.
 - Keep plan paths root-relative in prose as `<root>/plans/...`; resolve Markdown links relative to the file containing them.
 - Use Mermaid only when a complex relationship becomes easier to understand; keep the one-sentence takeaway and validate syntax.
 

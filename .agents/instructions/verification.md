@@ -35,6 +35,15 @@ When a task spans sessions or updates project memory, verify the smallest releva
 
 Treat these as task-specific acceptance checks, not a reason to create a mandatory memory file or run a broad wiki audit for every change.
 
+## Plan Review
+
+Use an independent review before implementing work with shared-contract changes, difficult migration/recovery, correctness-sensitive sequencing, or parallel ownership conflicts. Risk determines the gate, not plan length or the Complex label alone. Ordinary plans need only proportional self-checks.
+
+- Give a reviewer who did not author the plan a focused context: original requirements, plan, relevant contracts, and source/test paths. Have them verify material assumptions against those artifacts rather than inherit the author's full discussion.
+- Check feasibility, acceptance-to-task/check coverage, dependencies, write ownership, compatibility, and realistic recovery prerequisites. Return only actionable findings with evidence, impact, and affected tasks; distinguish blocking findings from suggestions. Test expectations must follow requirements and observed contracts, not merely repeat the plan's assumptions.
+- Start with one review pass. Resolve findings by correction or an evidence-backed rejection; recheck material fixes and affected dependencies. Unresolved blocking findings keep affected tasks gated even if the review budget is exhausted; avoid unbounded critique loops.
+- If an independent reviewer is unavailable, disclose the gap and keep review-gated work blocked while independent authorized work proceeds. A self-check is not an independent review; any accepted exception must be explicit.
+
 ## Evals
 
 When improving runtime behavior, prompts, adapters, or instructions:

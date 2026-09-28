@@ -102,6 +102,16 @@ For staged data work, plans must identify the gate after each layer or phase, fo
 
 Keep plan indexes short. Put detailed phase work in separate files only when needed.
 
+### Design contracts and work-item readiness
+
+When work changes interfaces, shared boundaries, cross-system behavior, or compatibility, resolve the relevant contract before dependent implementation: inputs/outputs and errors, invariants, allowed variation, dependency direction, and compatibility as applicable. Link an existing contract rather than restating it. Keep durable design and rationale in the owning wiki spec/decision (or established project equivalent); the plan holds execution-specific references. The coordinator owns persistence; a planner writes a durable page only when explicitly assigned that page.
+
+A work item is ready when its outcome, edit boundary, applicable contract, dependencies, and verification are clear enough to execute without making an unresolved consequential design decision. Gate only affected work; independent authorized tasks and bounded evidence-gathering spikes may proceed. Routine implementation choices remain with the implementer. New contradictory evidence triggers discrepancy reporting and scoped replanning.
+
+Link important acceptance criteria to the work items that satisfy them and their checks, reusing existing IDs. For delegated work, add a short handoff only where needed: allowed edit paths/ownership, required context and contract links, constraints, and completion evidence. Avoid overlapping writes; do not duplicate the full plan or require a new requirement/decision ID system.
+
+Assess independent plan review using [verification.md](verification.md#plan-review) before handing off risk-bearing work. Record the reviewed scope, reviewer, findings and disposition; review does not grant implementation or deployment permission.
+
 ### Durable knowledge and deletion independence
 
 During discovery and delivery, update the owning wiki spec, research, architecture, decision, or runbook when a meaningful fact, rationale, decision, assumption, or verified behavior changes. Do not wait for the plan to finish and do not copy the whole plan into the wiki.

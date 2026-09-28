@@ -62,15 +62,23 @@ Consequential alternatives:
 
 ## Work Items
 
+Before starting an item, apply [readiness and contract rules](../../.agents/instructions/artifacts.md#design-contracts-and-work-item-readiness). Unresolved gates block dependent items only.
+
 | ID | Task | Depends on | Completion evidence | Status |
 |---|---|---|---|---|
 | T1 | [action and affected path] | — | [observable result] | pending |
 
+For delegated items only, add a short handoff where the table is insufficient:
+
+- Task / edit ownership: [T ID and allowed paths; shared-file sequencing if needed]
+- Read / preserve: [minimum context, canonical contract links, and constraints]
+- Done when: [completion evidence; reference existing checks]
+
 ## Acceptance and Verification
 
-| ID | Acceptance criterion | Verification check | Evidence / result |
-|---|---|---|---|
-| AC1 | [observable outcome] | [command, test, review, or data check] | [link or result] |
+| ID | Acceptance criterion | Work items | Verification check | Evidence / result |
+|---|---|---|---|---|
+| AC1 | [observable outcome] | T1 | [command, test, review, or data check] | [link or result] |
 
 Add only relevant [scenario sections](scenario-sections.md).
 

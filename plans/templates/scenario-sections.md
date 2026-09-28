@@ -6,6 +6,8 @@ Add only the sections that match the task. These prompts extend [`plan-template.
 
 | Scenario | Add when |
 |---|---|
+| [Design contract](#design-contract) | Interfaces, shared boundaries, cross-system behavior, or compatibility change |
+| [Plan review](#plan-review) | The risk triggers in the verification policy apply |
 | [Diagnosis / bug](#diagnosis--bug) | Cause or fix is uncertain, or a regression needs a bounded investigation |
 | [Incident](#incident-containment) | Immediate mitigation and later repair have different urgency or owners |
 | [Data pipeline](#data-pipeline) | Source, target, transformations, or data quality are in scope |
@@ -15,6 +17,23 @@ Add only the sections that match the task. These prompts extend [`plan-template.
 | [Performance / cost](#performance--cost) | Runtime, volume, latency, or spend is a target |
 | [Tooling / instructions / docs](#tooling--instructions--docs) | Developer workflow, agent guidance, or documentation changes |
 | [Security](#security) | Trust boundary, secrets, access, privacy, or threat exposure changes |
+
+## Design Contract
+
+- Owning spec / decision / existing contract: [durable path; lifecycle and persistence owner]
+- Relevant boundary: [inputs/outputs/errors, invariants, allowed variation, dependency direction, compatibility; include only what changes]
+- Implementation gates: [unresolved choice, affected task IDs, resolution evidence]
+
+Link canonical details rather than copy them here. Shared behavior and engine-specific capabilities must be explicit; do not assume identical semantics across systems.
+
+## Plan Review
+
+Follow [verification.md](../../.agents/instructions/verification.md#plan-review).
+
+- Trigger / reviewed scope: [risk and plan revision or affected tasks]
+- Reviewer / evidence checked: [independent reviewer and relevant requirements/source/contracts]
+- Findings / disposition: [blocking vs advisory; correction or evidence-backed rejection; recheck result]
+- Remaining gates: [affected tasks and unblock condition, or none]
 
 ## Diagnosis / Bug
 

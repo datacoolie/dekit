@@ -9,7 +9,7 @@ sources:
   - ../../AGENTS.md
   - ../../.agents/instructions/agent-operating-model.md
   - ../../.agents/instructions/artifacts.md
-updated: 2026-09-14
+updated: 2026-09-28
 design_status: accepted
 implementation_status: verified
 ---
@@ -44,6 +44,14 @@ Work commonly moves through brainstorm, local scouting, external research, desig
 ## State distinction
 
 Use separate fields or clear headings for proposal/acceptance and implementation verification. An accepted design is not proof that the code has shipped. A recommendation is not an accepted decision.
+
+## Planning handoff refinement — 2026-09-28
+
+The user accepted durable design contracts, readiness per work item, and risk-based independent plan review. Contracts belong to their owning wiki spec/decision or established project equivalent; disposable plans link to them. Readiness may differ between tasks, so a blocked contract does not prevent independent authorized work or a bounded investigation.
+
+The canonical [plan contract](../../.agents/instructions/artifacts.md#design-contracts-and-work-item-readiness) owns these rules; [verification policy](../../.agents/instructions/verification.md#plan-review) owns review triggers and findings resolution. The core template links tasks to acceptance checks and provides a conditional handoff block. Existing scenario sections provide conditional contract/review prompts. The read-only strategist can critique a plan in a fresh context through the code-review skill; planner wiki edits require explicit page ownership.
+
+This is an instruction/template refinement. On 2026-09-28, both changed skills passed `quick_validate.py`; all seven role TOMLs parsed with names, models, reasoning, and sandboxes unchanged; local Markdown paths/anchors and whitespace checks passed. Independent strategist review identified a human-approval routing conflict, corrected in the operating model. Behavioral effectiveness and model cost savings remain unmeasured; these results validate artifacts, not general runner performance.
 
 ## Prior work disposition
 

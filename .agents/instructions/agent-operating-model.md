@@ -18,7 +18,7 @@ Stop for user input only on:
 - Breaking API, schema, data contract, or behavior.
 - Irreversible operation: delete data, drop table, force push, production deploy, destructive cleanup.
 - Architecture decision: new system boundary, new storage/modeling strategy, engine/tool choice.
-- Required approval gate: a plan, workflow, or layer promotion says review or approval is needed before continuing.
+- Required human approval gate: a plan, workflow, or layer promotion explicitly requires user/human approval before continuing. Arrange agent-performable review autonomously; its gate alone does not require user input.
 - Uncharted territory: no established pattern and meaningful risk if guessed.
 
 ## Path Resolution
