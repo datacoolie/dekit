@@ -11,6 +11,19 @@ Portable instruction and skill toolkit for data engineering teams. Helps AI runn
 - `.agents/skills/` contains task-specific behavior.
 - Platform adapters are optional and must not become a second source of truth.
 
+### Runner Adapters
+
+[Claude Code 2.1.277+](https://github.com/anthropics/claude-code/releases/tag/v2.1.277) can read `AGENTS.md` when the project has no `CLAUDE.md`, subject to provider support. To make dekit skills discoverable as Claude skills, run this from `<root>` after cloning or adding skills (use `<root>/.venv` Python when it exists):
+
+```text
+python scripts/setup_claude_skills.py
+python scripts/setup_claude_skills.py --check
+```
+
+The script creates local `.claude/skills/<name>` links to the canonical `.agents/skills/<name>` directories: symlinks on Unix, directory junctions on Windows. These generated links are Git-ignored; no skill content is copied. [Claude Code documents per-skill folder links](https://code.claude.com/docs/en/skills); verify discovery with its `/skills` command.
+
+For bounded independent subtasks such as scout, review, scan, or test, non-Codex runners that can execute local commands follow [cross-runner delegation](.agents/instructions/cross-runner-delegation.md): use `codex exec` with only `gpt-6-luna:max` or `gpt-5.6-luna:max`, then fall back to a native subagent if Codex cannot complete the work. Codex itself keeps its [native role routing](.agents/instructions/codex-delegation.md).
+
 ### Data Engineering Foundation
 
 Relevant skills reference the universal data engineering constraints in `.agents/instructions/data-engineering-constraints.md`; they do not implicitly load every domain rule. Verification rules live in `.agents/instructions/verification.md`.

@@ -45,6 +45,7 @@ Do not bulk-load all instructions by default.
 |---|---|
 | `.agents/instructions/agent-operating-model.md` | Any task: scope, autonomy, handoff, reporting |
 | `.agents/instructions/codex-delegation.md` | Codex only: considering or performing subagent delegation |
+| `.agents/instructions/cross-runner-delegation.md` | Other AI runners: considering independent subtask delegation through `codex exec` |
 | `.agents/instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
 | `.agents/instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
 | `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
@@ -65,7 +66,7 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 - Verify before reporting done.
 - Keep durable intent, rationale, current architecture, and operational knowledge outside disposable plan directories; completed plans may be deleted manually.
 - Reports must be concise.
-- Assess delegation proactively under `.agents/instructions/agent-operating-model.md`; for Codex, also read `.agents/instructions/codex-delegation.md` when considering delegation.
+- Assess delegation under `.agents/instructions/agent-operating-model.md`; read the matching Codex or cross-runner delegation adapter when considering it.
 
 ## Skill Routing Notes
 
@@ -73,6 +74,7 @@ Platform-specific files may wrap these instructions, but must not duplicate or r
 - Use `research` for source-backed evaluation when current facts, external documentation, standards, benchmarks, or vendor behavior matter.
 - Use `plan` after a direction is selected and implementation scope is Standard or Complex.
 - Do not treat brainstorm output as evidence. Route to research when factual claims need verification.
+- When a runner loads a linked skill, resolve its relative references against the canonical `.agents/skills/<name>/` directory, not the adapter path.
 
 ## Repository Layout
 
