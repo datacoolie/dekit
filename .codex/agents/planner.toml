@@ -1,7 +1,7 @@
 name = "planner"
 description = "Use after a direction is selected and execution needs a plan. Produce scoped tasks, dependencies, acceptance checks, and unresolved gates; no implementation."
-model = "gpt-6-sol"
-model_reasoning_effort = "xhigh"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
