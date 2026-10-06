@@ -12,10 +12,11 @@ Select and report the smallest checks that prove the requested acceptance criter
 - Map changed files to affected behavior, consumers, co-located tests, and blast radius.
 - Run focused tests for narrow risk; escalate to a broader suite only for shared/high-fan-out/dependency/infrastructure or explicitly broad changes.
 - For data work, add only applicable schema, grain/key, freshness, quality, reconciliation, idempotency, and boundary checks.
+- For refactoring, verify behavior and the stated structural outcome using [design-conformance checks](../../instructions/verification.md#design-conformance-and-refactoring); report a gap when tests cover behavior but not the claimed ownership/dependency change.
 - Restart/run notebooks or exercise UI flows only when those paths are in scope; avoid costly/destructive blanket run-all actions.
 - If the environment, credentials, service, or dataset is unavailable, report the gap and what remains unverified.
 - When a plan may be deleted, verify the important outcome from source/tests/runtime evidence and record a compact receipt in the assigned durable wiki page when requested. Do not treat a plan status or an expiring report as proof.
-- For a fresh-session or workflow-rule check, distinguish static walkthroughs and helper regressions from measured agent behavior; do not claim quality, token, or cost improvement without a paired evaluation.
+- For a workflow-rule check, distinguish static walkthroughs and helper regressions from measured agent behavior; do not claim quality, token, or cost improvement without an equivalent real-workload comparison.
 
 Tests must be deterministic and isolated. Use representative fixtures for integration behavior; a mock is acceptable only when it does not replace the behavior under test.
 

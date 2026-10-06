@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
@@ -110,6 +111,81 @@ sources:
             self.assertEqual(result["pages_scanned"], 2)
             self.assertTrue(any(item["path"] == "plain.md" for item in result["candidates"]))
 
+    def test_secret_filter_uses_base_relative_components_and_allow_opt_in(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "host-secret"
+            base = root / "project"
+            safe = base / "docs" / "guide.md"
+            secret = base / "credentials" / "guide.md"
+            safe.parent.mkdir(parents=True)
+            secret.parent.mkdir(parents=True)
+            safe.write_text("safe", encoding="utf-8")
+            secret.write_text("filtered", encoding="utf-8")
+            options = {
+                "base": base,
+                "extensions": {".md"},
+                "filenames": set(),
+                "include_patterns": [],
+                "exclude_patterns": [],
+            }
+
+            self.assertEqual(wiki_delta.iter_sources([safe], allow_secrets=False, **options), [safe.resolve()])
+            # An explicitly selected secret-looking source is still filtered.
+            self.assertEqual(wiki_delta.iter_sources([secret], allow_secrets=False, **options), [])
+            self.assertEqual(wiki_delta.iter_sources([secret], allow_secrets=True, **options), [secret.resolve()])
+
+            with mock.patch.object(wiki_delta, "sha256_file", side_effect=AssertionError("secret source was read")):
+                delta = wiki_delta.compute_filesystem_delta(
+                    manifest={"version": 1, "sources": {}, "repos": {}},
+                    wiki_root=root / "wiki",
+                    source_paths=[secret],
+                    allow_secrets=False,
+                    **options,
+                )
+            self.assertEqual(delta["items"], [])
+
+    def test_secret_filter_without_base_checks_resolved_absolute_components(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            secret_ancestor = Path(tmp) / "host-secret"
+            source = secret_ancestor / "project" / "guide.md"
+            source.parent.mkdir(parents=True)
+            source.write_text("filtered", encoding="utf-8")
+            options = {
+                "base": None,
+                "extensions": {".md"},
+                "filenames": set(),
+                "include_patterns": [],
+                "exclude_patterns": [],
+            }
+            self.assertEqual(wiki_delta.iter_sources([source], allow_secrets=False, **options), [])
+            self.assertEqual(wiki_delta.iter_sources([source], allow_secrets=True, **options), [source.resolve()])
+
+    def test_secret_manifest_deletions_use_the_same_path_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "host-secret"
+            base = root / "project"
+            base.mkdir(parents=True)
+            manifest = {
+                "version": 1,
+                "sources": {
+                    "docs/old.md": {"path": "docs/old.md", "pages_stale": ["docs/old.md.md"]},
+                    "credentials/old.md": {"path": "credentials/old.md", "pages_stale": ["credentials/old.md.md"]},
+                },
+                "repos": {},
+            }
+            delta = wiki_delta.compute_filesystem_delta(
+                manifest=manifest,
+                wiki_root=root / "wiki",
+                source_paths=[base],
+                base=base,
+                extensions={".md"},
+                filenames=set(),
+                include_patterns=[],
+                exclude_patterns=[],
+                allow_secrets=False,
+            )
+            self.assertEqual([item["path"] for item in delta["items"]], ["docs/old.md"])
+
     def test_git_rename_reconciles_old_manifest_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp) / "repo"
@@ -156,6 +232,149 @@ sources:
             self.assertEqual(old_items[0]["status"], "deleted")
             self.assertEqual(old_items[0]["git_change"]["lifecycle"], "renamed")
             self.assertEqual(len(new_items), 1)
+
+    def test_git_rename_manifest_lookup_supports_relative_native_and_posix_keys(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            wiki = Path(tmp) / "wiki"
+            repo.mkdir()
+            wiki.mkdir()
+            self._git(repo, "init")
+            self._git(repo, "config", "user.email", "test@example.invalid")
+            self._git(repo, "config", "user.name", "Wiki Test")
+            old_path = repo / "old.md"
+            old_path.write_text("same content", encoding="utf-8")
+            self._git(repo, "add", "old.md")
+            self._git(repo, "commit", "-m", "initial")
+            base_commit = self._git(repo, "rev-parse", "HEAD").stdout.strip()
+            self._git(repo, "mv", "old.md", "new.md")
+            self._git(repo, "commit", "-m", "rename")
+
+            manifest_keys = {
+                "relative": "old.md",
+                "native absolute": str(old_path),
+                "POSIX absolute": old_path.as_posix(),
+            }
+            for label, manifest_key in manifest_keys.items():
+                with self.subTest(key=label):
+                    manifest = {
+                        "version": 1,
+                        "sources": {
+                            manifest_key: {
+                                "path": "old.md",
+                                "content_hash": "sha256:old",
+                                "pages_created": ["sources/old.md.md"],
+                            }
+                        },
+                        "repos": {},
+                    }
+                    delta = wiki_delta.compute_git_delta(
+                        manifest=manifest,
+                        wiki_root=wiki,
+                        repo=repo,
+                        base=repo,
+                        last_commit=base_commit,
+                        include_worktree=False,
+                        extensions={".md"},
+                        filenames=set(),
+                        include_patterns=[],
+                        exclude_patterns=[],
+                        allow_secrets=False,
+                    )
+                    old_items = [item for item in delta["items"] if item["status"] == "deleted"]
+                    new_items = [item for item in delta["items"] if item["path"] == "new.md"]
+                    self.assertEqual(len(old_items), 1)
+                    self.assertEqual(old_items[0]["pages_created"], ["sources/old.md.md"])
+                    self.assertEqual(old_items[0]["git_change"]["lifecycle"], "renamed")
+                    self.assertEqual(len(new_items), 1)
+
+    def test_git_rename_secret_directions_keep_metadata_only_old_association(self) -> None:
+        for old_name, new_name in (("old-secret.md", "new.md"), ("old.md", "new-secret.md")):
+            with self.subTest(old=old_name, new=new_name), tempfile.TemporaryDirectory() as tmp:
+                repo = Path(tmp) / "repo"
+                wiki = Path(tmp) / "wiki"
+                repo.mkdir()
+                wiki.mkdir()
+                self._git(repo, "init")
+                self._git(repo, "config", "user.email", "test@example.invalid")
+                self._git(repo, "config", "user.name", "Wiki Test")
+                (repo / old_name).write_text("same content", encoding="utf-8")
+                self._git(repo, "add", old_name)
+                self._git(repo, "commit", "-m", "initial")
+                base_commit = self._git(repo, "rev-parse", "HEAD").stdout.strip()
+                self._git(repo, "mv", old_name, new_name)
+                self._git(repo, "commit", "-m", "rename")
+                manifest = {
+                    "version": 1,
+                    "sources": {
+                        old_name: {
+                            "path": old_name,
+                            "content_hash": "sha256:old",
+                            "pages_created": [f"sources/{old_name}.md"],
+                        }
+                    },
+                    "repos": {},
+                }
+                delta = wiki_delta.compute_git_delta(
+                    manifest=manifest,
+                    wiki_root=wiki,
+                    repo=repo,
+                    base=repo,
+                    last_commit=base_commit,
+                    include_worktree=False,
+                    extensions={".md"},
+                    filenames=set(),
+                    include_patterns=[],
+                    exclude_patterns=[],
+                    allow_secrets=False,
+                )
+                old_items = [item for item in delta["items"] if item["status"] == "deleted"]
+                self.assertEqual(len(old_items), 1)
+                self.assertEqual(old_items[0]["pages_created"], [f"sources/{old_name}.md"])
+                self.assertFalse(old_items[0]["hash_checked"])
+
+                current_items = [item for item in delta["items"] if item["path"] == new_name]
+                if "secret" in new_name:
+                    self.assertEqual(current_items, [])
+                else:
+                    self.assertEqual(len(current_items), 1)
+
+    def test_git_worktree_rename_does_not_duplicate_old_metadata_deletion(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            wiki = Path(tmp) / "wiki"
+            repo.mkdir()
+            wiki.mkdir()
+            self._git(repo, "init")
+            self._git(repo, "config", "user.email", "test@example.invalid")
+            self._git(repo, "config", "user.name", "Wiki Test")
+            (repo / "old.md").write_text("same content", encoding="utf-8")
+            self._git(repo, "add", "old.md")
+            self._git(repo, "commit", "-m", "initial")
+            self._git(repo, "mv", "old.md", "new-secret.md")
+            manifest = {
+                "version": 1,
+                "sources": {
+                    "old.md": {"path": "old.md", "pages_stale": ["sources/old.md.md"]}
+                },
+                "repos": {},
+            }
+            delta = wiki_delta.compute_git_delta(
+                manifest=manifest,
+                wiki_root=wiki,
+                repo=repo,
+                base=repo,
+                last_commit=None,
+                include_worktree=True,
+                extensions={".md"},
+                filenames=set(),
+                include_patterns=[],
+                exclude_patterns=[],
+                allow_secrets=False,
+            )
+            old_items = [item for item in delta["items"] if item["status"] == "deleted"]
+            self.assertEqual(len(old_items), 1)
+            self.assertEqual(old_items[0]["pages_stale"], ["sources/old.md.md"])
 
     def test_git_quoted_paths_are_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

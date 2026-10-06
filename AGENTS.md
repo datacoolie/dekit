@@ -1,100 +1,55 @@
 # AGENTS.md
 
-## Purpose
+dekit is a portable instruction and skill toolkit for data engineering AI runners. Keep guidance small, focused, and verifiable.
 
-dekit defines portable operating rules for data engineering AI runners.
+## Core constraints
 
-It helps any compatible AI runner work on pipelines, SQL, notebooks, data models, quality checks, deployment workflows, brainstorming, debugging, review, internal wiki, user-facing docs, plans, reports, and git operations.
+- Inspect relevant evidence before editing; preserve user changes and edit source in place.
+- Act within scope. Stop for unresolved breaking changes, irreversible operations, architecture choices, or meaningful risk without an established approach. Existing authorization remains valid.
+- Verify the requested outcome before reporting done. Keep reports concise and end with unresolved questions, if any.
+- Keep one canonical owner per rule. Prefer constraints and observed gotchas over generic teaching or fixed itineraries.
+- Durable intent and rationale belong outside disposable plans. Completed plans may be deleted manually.
 
-## Philosophy
+## Root and paths
 
-Runtime instructions must be small, focused, and verifiable.
+`<root>` is the Git top-level, or the directory containing the workspace entrypoint `AGENTS.md` outside Git. The current directory and nested instructions do not redefine it.
 
-Core rules:
+Resolve repository-level paths from `<root>`. Reuse existing root directories; verify the target before creating one. A nested `wiki/`, `plans/`, `docs/`, or `.scratch/` is allowed only by an explicit component convention or user request.
 
-- Load the smallest useful context.
-- Prefer constraints and acceptance criteria over long procedures.
-- Keep runtime instructions small. Remove rules that do not improve outcomes.
-- Verify artifacts instead of trusting status claims.
-- Keep one source of truth.
-- Do not maintain parallel copies of the same rule.
-- Reports must list unresolved questions at the end.
+Ordinary Markdown links resolve relative to their owning file. For linked skills, resolve resources against canonical `.agents/skills/<name>/`, not a runner adapter.
 
-## Repository Root (`<root>`)
+## Task-driven context
 
-Determine the repository root before resolving any repository path. Use the Git top-level directory when available; otherwise use the directory containing the workspace entrypoint `AGENTS.md`.
+Classify work by uncertainty, impact, dependencies, and recovery risk. Local questions and small fixes need relevant files and constraints; Standard/Complex implementation or an explicit plan request needs the [planning policy](.agents/instructions/agent-operating-model.md#task-triage).
 
-In these instructions, `<root>` always means this repository root.
+Read only what affects the next action:
 
-All relative paths in this file, `README.md`, `.agents/instructions/`, and project skills are relative to that root unless explicitly stated otherwise. The current working directory and nested `AGENTS.md` files do not redefine the root.
+- `README.md` for setup, toolkit contents, or navigation.
+- A named plan's checkpoint plus relevant source/diff when resuming it; consult the [resume policy](.agents/instructions/agent-operating-model.md#durable-knowledge-and-resume).
+- Owning specs and accepted decisions when changing contracts, architecture, or business behavior.
+- `wiki/index.md` when project continuation needs orientation. No full-wiki or architecture preload for every session.
 
-## Required Reading
+## Canonical routing
 
-Before planning or implementation:
+`.agents/instructions/` owns shared policy. Runner adapters may reference it but must not redefine it.
 
-1. `README.md`
-2. The smallest relevant file from `.agents/instructions/`
-
-Do not bulk-load all instructions by default.
-
-## Instruction Source Of Truth
-
-`.agents/instructions/` is canonical. Shared rules are tool-agnostic; runner-specific guidance is explicitly scoped.
-
-| File | Use when |
+| File | Read when |
 |---|---|
-| `.agents/instructions/agent-operating-model.md` | Any task: scope, autonomy, handoff, reporting |
-| `.agents/instructions/codex-delegation.md` | Codex only: considering or performing subagent delegation |
-| `.agents/instructions/cross-runner-delegation.md` | Other AI runners: considering independent subtask delegation through `codex exec` |
-| `.agents/instructions/engineering-constraints.md` | Code, repo, refactor, implementation |
-| `.agents/instructions/data-engineering-constraints.md` | Pipelines, SQL, Spark, notebooks, data models |
-| `.agents/instructions/verification.md` | Tests, evals, review, acceptance checks |
-| `.agents/instructions/wiki.md` | Internal LLM wiki and project memory |
-| `.agents/instructions/artifacts.md` | README, user-facing docs, plans, reports, decision records |
+| [agent-operating-model.md](.agents/instructions/agent-operating-model.md) | Planning delivery, resuming work, evaluating autonomy/delegation, or handing off |
+| [engineering-constraints.md](.agents/instructions/engineering-constraints.md) | Editing code, refactoring, or running repository tools; includes `.venv` selection |
+| [data-engineering-constraints.md](.agents/instructions/data-engineering-constraints.md) | Pipelines, SQL, Spark, notebooks, models, or data contracts |
+| [verification.md](.agents/instructions/verification.md) | Choosing tests, acceptance checks, evals, or review gates |
+| [wiki.md](.agents/instructions/wiki.md) | Reading/updating project memory or checking wiki health |
+| [artifacts.md](.agents/instructions/artifacts.md) | Creating/updating plans, reports, decisions, or user-facing docs |
+| [delegation-routing.md](.agents/instructions/delegation-routing.md) | Selecting or changing a native/external executor, including a request for Codex API |
+| [codex-delegation.md](.agents/instructions/codex-delegation.md) | Native Codex delegation or calling Codex as an external executor from any runner |
 
-Platform-specific files may wrap these instructions, but must not duplicate or redefine them.
+## Skills and artifacts
 
-## Operating Rules
+Use `brainstorm` for unsettled directions, `scout` for local evidence, `research` for external facts, and `plan` for an actionable implementation direction. Brainstorm output is not factual evidence. Select other skills by their actual scope; do not load every reference by default.
 
-- Start with task triage: Trivial, Simple, Standard, or Complex.
-- Resolve repository paths from the repository root, never from the current working directory.
-- For a new session, read the root entrypoint and applicable instructions, then `wiki/index.md` and relevant current wiki pages when that project wiki exists, before opening an active plan or scouting source for drift.
-- Act autonomously inside scope.
-- Stop for breaking changes, irreversible operations, architecture decisions, or uncharted territory.
-- Modify source files directly. No side-by-side final/enhanced copies.
-- Preserve user changes. Do not revert unrelated work.
-- Verify before reporting done.
-- Keep durable intent, rationale, current architecture, and operational knowledge outside disposable plan directories; completed plans may be deleted manually.
-- Reports must be concise.
-- Assess delegation under `.agents/instructions/agent-operating-model.md`; read the matching Codex or cross-runner delegation adapter when considering it.
-
-## Skill Routing Notes
-
-- Use `brainstorm` for ambiguous ideas, option discovery, assumption checks, and early design trade-offs before evidence is required.
-- Use `research` for source-backed evaluation when current facts, external documentation, standards, benchmarks, or vendor behavior matter.
-- Use `plan` after a direction is selected and implementation scope is Standard or Complex.
-- Do not treat brainstorm output as evidence. Route to research when factual claims need verification.
-- When a runner loads a linked skill, resolve its relative references against the canonical `.agents/skills/<name>/` directory, not the adapter path.
-
-## Repository Layout
-
-- `<root>/AGENTS.md` - repository entrypoint for AI runners.
-- `<root>/.agents/instructions/` - canonical portable instructions.
-- `<root>/wiki/` - internal technical knowledge for engineers and AI runners, when present. Use a shallow `index.md` plus populated `specs/`, `research/`, `architecture/`, `decisions/`, and `runbooks/` areas as needed.
-- `<root>/plans/` - disposable implementation plans and reports; do not make them the only home of durable knowledge.
-- `<root>/docs/` - user-facing documentation, when present.
-- `<root>/.scratch/` - temporary local workspace; can persist across work sessions; no secrets and no production imports.
-
-Before creating one of these directories, check for the root-level directory and reuse it. Do not create duplicate repository-level directories inside the current subdirectory.
-
-Repository-level directory invariant:
-
-- A default repository-level directory must be created only at its exact root-relative path, for example `<root>/wiki/`, never as `./wiki/` relative to a nested working directory.
-- Determine and verify the target path against `<root>` before creating it. If the resolved target is not the root-level path, do not create it.
-- A nested directory with one of these names is allowed only when the repository explicitly defines it as component-scoped or the user explicitly requests it.
-
-## Universal Conventions
-
-- One commit should contain one coherent change.
-- Files over 200 lines are a split signal; split only on meaningful boundaries.
-- Check for existing modules before adding new ones.
+- `.agents/skills/`: canonical reusable task guidance and helpers.
+- `wiki/`: optional durable internal knowledge; add only populated areas.
+- `plans/`: disposable execution plans/reports and reusable `plans/templates/`.
+- `docs/`: optional user-facing documentation.
+- `.scratch/`: agent-created temporary work; may persist across sessions. No secrets or production imports. Tool-managed caches/build outputs keep their conventional locations; see the [scratch policy](.agents/instructions/agent-operating-model.md#scratch-workspace).

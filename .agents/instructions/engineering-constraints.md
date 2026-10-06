@@ -2,43 +2,32 @@
 
 ## Design
 
-- KISS: choose the simplest design that meets the requirement.
-- YAGNI: no speculative flags, layers, parameters, or future-proofing.
-- DRY knowledge, not shapes. Keep one source of truth for schemas, config, and business rules.
-- Prefer composition over inheritance.
-- Keep ingestion, transformation, validation, orchestration, and I/O concerns separate.
-- Code that changes together lives together; unrelated modules communicate through explicit contracts.
-
-## SOLID
-
-- Single Responsibility: each module, function, notebook, or job owns one reason to change.
-- Open/Closed: extend behavior through new strategies, config, or adapters rather than editing stable core logic.
-- Liskov Substitution: implementations of the same contract must be interchangeable without caller special cases.
-- Interface Segregation: expose narrow contracts; do not force callers to depend on methods or fields they do not use.
-- Dependency Inversion: business logic depends on abstractions or injected dependencies, not hard-wired services, paths, clients, or connectors.
+- Add a boundary, abstraction, or configuration only when the requested behavior needs it.
+- Keep shared schemas, configuration, and business invariants canonical. Similar-looking code need not share an abstraction.
+- Keep ingestion, transformation, validation, orchestration, and I/O responsibilities distinct where their contracts differ.
+- Implementations of the same public contract must preserve equivalent semantics; verify allowed variation explicitly.
+- Do not hide a required initialization or invariant failure behind an optional lookup/default. Getters, lazy access, and compatibility fallbacks are valid when their contract calls for them.
+- Reuse the authoritative owner of state and business rules. Derived/cached state needs explicit derivation and lifecycle/invalidation; separate consumers need not share an abstraction merely because code looks similar.
+- Respect component contracts rather than reaching into another component's private state. A wrapper or extension point needs a concrete role, such as invariant protection, adaptation, or a supported variation.
 
 ## Implementation
 
-- Read existing patterns before creating new ones.
-- Check for an equivalent module before adding a file.
-- Edit source files in place. Do not create side-by-side "new", "enhanced", or "final" variants.
-- Files over 200 lines are a split signal, not an automatic failure. Split only on real boundaries.
-- Use descriptive names. Avoid clever code that needs a comment to be understood.
-- Comments explain why, not what.
-- No placeholders, stubs, TODO implementations, or fake success paths in shippable code.
+- Check existing patterns and equivalent modules before adding a file.
+- Edit source in place; no side-by-side final/enhanced copies.
+- Files over 200 lines signal a possible split, not an automatic failure. Split on meaningful boundaries.
+- No placeholders, stub implementations, or fake success paths in shippable code.
+- Keep task-related cleanup within authorized scope and verify it. For consequential changes to ownership, contracts, inheritance, or dependency direction, establish the structural outcome and approach before dependent edits; apply existing [authorization and decision-reopening rules](agent-operating-model.md#autonomy).
 
 ## Execution
 
-- When `<root>/.venv` exists, use it for Python commands and tools it provides. Do not use a global Python installation or another environment.
+When `<root>/.venv` exists, use it for Python commands and tools it provides. Do not substitute a global Python or another environment.
 
 ## Safety
 
-- No secrets in code, wiki pages, docs, tests, commits, or examples.
-- Do not bypass failing tests or quality checks.
-- Do not perform destructive filesystem, git, database, or cloud operations without explicit approval.
-- Preserve user changes. Never revert unrelated edits.
+- No secrets in source, artifacts, commits, or examples.
+- Preserve user changes; never revert unrelated edits or bypass failing checks.
+- Destructive filesystem, Git, database, or cloud operations require explicit authorization.
 
 ## Git
 
-- One commit = one coherent change.
-- Do not include AI attribution in commit messages.
+One commit contains one coherent change. Do not add AI attribution to commit messages.

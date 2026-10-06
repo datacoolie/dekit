@@ -166,9 +166,28 @@ def match_any(value: str, patterns: list[str] | set[str]) -> bool:
     return any(fnmatch.fnmatch(normalized, pattern) or fnmatch.fnmatch(name, pattern) for pattern in patterns)
 
 
-def is_secret_path(path: Path | str) -> bool:
-    name = Path(path).name
-    return match_any(name, SECRET_NAME_PATTERNS)
+def _secret_check_path(path: Path | str, base: Path | None) -> Path:
+    """Resolve the path used by the default secret filter.
+
+    A supplied base is the filtering boundary: components above it are not
+    considered for paths beneath the base.  Without a base, the absolute path
+    is used conservatively so a secret-looking ancestor cannot be bypassed by
+    selecting a file explicitly.
+    """
+    resolved = Path(path).expanduser().resolve()
+    if base is None:
+        return resolved
+    try:
+        return resolved.relative_to(Path(base).expanduser().resolve())
+    except ValueError:
+        # A path outside the boundary has no safe relative representation. Keep
+        # the conservative absolute check in that case.
+        return resolved
+
+
+def is_secret_path(path: Path | str, *, base: Path | None = None) -> bool:
+    candidate = _secret_check_path(path, base)
+    return any(match_any(component, SECRET_NAME_PATTERNS) for component in candidate.parts)
 
 
 def is_allowed_source(
@@ -182,13 +201,16 @@ def is_allowed_source(
     allow_secrets: bool,
 ) -> bool:
     key = rel_key(path, base)
-    if match_any(key, exclude_patterns):
-        return False
-    if not allow_secrets and is_secret_path(path):
-        return False
-    if match_any(key, include_patterns):
-        return True
-    return path.name in filenames or path.suffix.lower() in extensions
+    return is_allowed_source_key(
+        key,
+        extensions=extensions,
+        filenames=filenames,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
+        allow_secrets=allow_secrets,
+        base=base,
+        source_path=path,
+    )
 
 
 def is_allowed_source_key(
@@ -199,11 +221,21 @@ def is_allowed_source_key(
     include_patterns: list[str],
     exclude_patterns: list[str],
     allow_secrets: bool,
+    base: Path | None = None,
+    source_path: Path | None = None,
 ) -> bool:
     path = Path(key)
     if match_any(key, exclude_patterns):
         return False
-    if not allow_secrets and is_secret_path(key):
+
+    # When only a base-relative manifest key is available, resolve it beneath
+    # that base before checking its components. Callers with a real source path
+    # pass it explicitly so an absolute manifest key cannot change the boundary
+    # semantics.
+    candidate = source_path
+    if candidate is None and base is not None and not path.is_absolute():
+        candidate = base / path
+    if not allow_secrets and is_secret_path(candidate or path, base=base):
         return False
     if match_any(key, include_patterns):
         return True
@@ -439,9 +471,57 @@ def repo_manifest_entry(manifest: dict[str, Any], repo: Path) -> dict[str, Any] 
     return None
 
 
+def _manifest_key_normalize(value: str) -> str:
+    normalized = str(value).replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    return os.path.normcase(normalized).replace("\\", "/")
+
+
+def _manifest_key_candidates(key: str, path: Path) -> list[str]:
+    candidates: list[str] = []
+    for value in (key, str(path), posix_path(path), str(path.resolve()), posix_path(path.resolve())):
+        value = str(value)
+        if value not in candidates:
+            candidates.append(value)
+        normalized = value.replace("\\", "/")
+        if normalized not in candidates:
+            candidates.append(normalized)
+    return candidates
+
+
+def manifest_match_for_path(
+    manifest_sources: dict[str, Any], key: str, path: Path
+) -> tuple[str, dict[str, Any]] | None:
+    """Return the manifest key and entry for a path in any supported form."""
+    candidates = _manifest_key_candidates(key, path)
+    for candidate in candidates:
+        entry = manifest_sources.get(candidate)
+        if isinstance(entry, dict):
+            return candidate, entry
+
+    normalized_candidates = {_manifest_key_normalize(candidate) for candidate in candidates}
+    for manifest_key, entry in manifest_sources.items():
+        if isinstance(entry, dict) and _manifest_key_normalize(manifest_key) in normalized_candidates:
+            return manifest_key, entry
+    return None
+
+
 def manifest_entry_for_path(manifest_sources: dict[str, Any], key: str, path: Path) -> dict[str, Any] | None:
-    entry = manifest_sources.get(key) or manifest_sources.get(str(path)) or manifest_sources.get(posix_path(path))
-    return entry if isinstance(entry, dict) else None
+    match = manifest_match_for_path(manifest_sources, key, path)
+    return match[1] if match else None
+
+
+def source_identity(path: Path) -> str:
+    """Return a stable identity for deletion de-duplication."""
+    return os.path.normcase(str(path.expanduser().resolve())).replace("\\", "/")
+
+
+def manifest_source_path(key: str, entry: dict[str, Any], anchor: Path | None) -> Path:
+    source_path = Path(entry.get("path") or key)
+    if anchor is not None and not source_path.is_absolute():
+        source_path = anchor / source_path
+    return source_path.resolve()
 
 
 def compute_filesystem_delta(
@@ -480,9 +560,7 @@ def compute_filesystem_delta(
     for key, entry in manifest_sources.items():
         if key in by_key or not isinstance(entry, dict):
             continue
-        source_path = Path(entry.get("path") or key)
-        if base and not source_path.is_absolute():
-            source_path = base / source_path
+        source_path = manifest_source_path(key, entry, base)
         if not source_path.exists():
             if not is_allowed_source_key(
                 key,
@@ -491,6 +569,8 @@ def compute_filesystem_delta(
                 include_patterns=include_patterns,
                 exclude_patterns=exclude_patterns,
                 allow_secrets=allow_secrets,
+                base=base,
+                source_path=source_path,
             ):
                 continue
             items.append(deleted_item(key, source_path, entry))
@@ -556,14 +636,19 @@ def compute_git_delta(
             previous_rel = previous_rel.replace("\\", "/")
             previous_path = repo / previous_rel
             previous_key = rel_key(previous_path, base)
-            previous_entry = manifest_sources.get(previous_key) or manifest_sources.get(previous_rel)
-            if isinstance(previous_entry, dict) and previous_key not in seen_deleted:
+            previous_match = manifest_match_for_path(manifest_sources, previous_key, previous_path)
+            if not previous_match and previous_rel != previous_key:
+                previous_match = manifest_match_for_path(manifest_sources, previous_rel, previous_path)
+            previous_entry = previous_match[1] if previous_match else None
+            previous_identity = source_identity(previous_path)
+            if isinstance(previous_entry, dict) and previous_identity not in seen_deleted:
                 renamed_change = {**git_change, "lifecycle": "renamed"}
                 items.append(deleted_item(previous_key, previous_path, previous_entry, renamed_change))
-                seen_deleted.add(previous_key)
+                seen_deleted.add(previous_identity)
 
-        allowed = is_allowed_source_key(
-            rel,
+        allowed = is_allowed_source(
+            current_path,
+            base=base,
             extensions=extensions,
             filenames=filenames,
             include_patterns=include_patterns,
@@ -576,11 +661,12 @@ def compute_git_delta(
         key = rel_key(current_path, base)
         if "D" in status_code and not current_path.exists():
             deleted_key = rel_key(current_path, base)
-            entry = manifest_sources.get(deleted_key) or manifest_sources.get(rel)
+            entry = manifest_entry_for_path(manifest_sources, deleted_key, current_path)
             source_path = repo / rel
-            if deleted_key not in seen_deleted:
+            deleted_identity = source_identity(source_path)
+            if deleted_identity not in seen_deleted:
                 items.append(deleted_item(deleted_key, source_path, entry if isinstance(entry, dict) else None, git_change))
-                seen_deleted.add(deleted_key)
+                seen_deleted.add(deleted_identity)
             continue
 
         if not current_path.exists():
@@ -599,9 +685,10 @@ def compute_git_delta(
         for key, entry in manifest_sources.items():
             if key in seen_current or not isinstance(entry, dict):
                 continue
-            source_path = Path(entry.get("path") or key)
-            if not source_path.is_absolute():
-                source_path = repo / source_path
+            source_path = manifest_source_path(key, entry, repo)
+            source_identity_value = source_identity(source_path)
+            if source_identity_value in seen_deleted:
+                continue
             if not source_path.exists() and is_allowed_source_key(
                 key,
                 extensions=extensions,
@@ -609,8 +696,11 @@ def compute_git_delta(
                 include_patterns=include_patterns,
                 exclude_patterns=exclude_patterns,
                 allow_secrets=allow_secrets,
+                base=base,
+                source_path=source_path,
             ):
                 items.append(deleted_item(key, source_path, entry))
+                seen_deleted.add(source_identity_value)
 
     git_info = {
         "enabled": True,
@@ -688,7 +778,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wiki-root", default="wiki", help="Wiki root directory containing manifest.json.")
     parser.add_argument("--root", default=None, help="Repository root used for relative paths (defaults to the Git top-level).")
     parser.add_argument("--source", action="append", default=[], help="Source file or directory. Can be repeated.")
-    parser.add_argument("--base", default=None, help="Base path used to normalize source keys.")
+    parser.add_argument(
+        "--base",
+        default=None,
+        help="Base path used for source keys and secret filtering; without it, filtering checks the resolved absolute path.",
+    )
     parser.add_argument("--git-repo", default=None, help="Git repository to use as the candidate selector.")
     parser.add_argument("--last-commit", default=None, help="Override manifest repos[].last_commit_synced.")
     parser.add_argument("--no-worktree", action="store_true", help="Ignore uncommitted git working tree changes.")
@@ -701,7 +795,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ext", action="append", default=[], help="Allowed extension such as .md. Repeatable. Overrides profile extensions.")
     parser.add_argument("--include", action="append", default=[], help="Glob to include even if extension is not in profile. Repeatable.")
     parser.add_argument("--exclude", action="append", default=[], help="Glob to exclude. Repeatable.")
-    parser.add_argument("--allow-secrets", action="store_true", help="Allow secret-looking files. Off by default.")
+    parser.add_argument(
+        "--allow-secrets",
+        action="store_true",
+        help="Allow secret-looking paths and path components. Off by default.",
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON instead of text.")
     return parser.parse_args()
 

@@ -1,6 +1,6 @@
 ---
 name: dataops
-description: "Design, implement, and review DataOps workflows for data platforms. Use for CI/CD for data pipelines, infrastructure as code, deployment automation, monitoring, alerting, rollback plans, cost controls, secrets management, and platform reliability."
+description: "Design or review data-platform deployment and operational workflows: CI/CD, infrastructure, monitoring, recovery, security, and cost; use for operational change rather than ordinary pipeline logic."
 ---
 
 # DataOps
@@ -15,8 +15,6 @@ Make deployment and recurring operations repeatable, observable, and recoverable
 - Cost/capacity: use observed volume/SLA to set bounds, autoscaling limits, lifecycle/compaction, and cost attribution where supported.
 
 Keep secrets in approved stores/injection, least privilege, network/encryption/audit controls, and a rollback/recovery path. A checkpoint reset, replay, or rollback must be justified by source/sink state and evidence, not a generic recipe.
-
-Wiki updates remain user-directed unless the canonical [wiki policy](../../instructions/wiki.md) threshold is met; a behavior change alone does not mandate a page.
 
 ## Verification
 

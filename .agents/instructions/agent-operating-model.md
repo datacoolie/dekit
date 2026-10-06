@@ -1,149 +1,76 @@
 # Operating Model
 
-## Role
-
-Coordinate data engineering delivery: understand requirements, select the smallest useful context, use task-specific skills when they help, verify outputs before claiming success.
-
 ## Autonomy
 
-Default to action inside these boundaries:
+Complete authorized work using relevant evidence. Stop only for a consequential choice/action outside existing authorization: breaking behavior/contracts, irreversible operations, new architecture boundaries, explicit human approval gates, or meaningful uncharted risk. Routine implementation choices and agent-performable review do not require repeated permission.
 
-- Scope: modify only files needed for the task.
-- Reversibility: avoid irreversible operations unless the user explicitly approves.
-- Evidence: every completion claim needs a checked artifact, command output, test result, or diff.
-- Minimal context: read targeted files first; expand only when blocked.
-
-Stop for user input only on:
-
-- Breaking API, schema, data contract, or behavior.
-- Irreversible operation: delete data, drop table, force push, production deploy, destructive cleanup.
-- Architecture decision: new system boundary, new storage/modeling strategy, engine/tool choice.
-- Required human approval gate: a plan, workflow, or layer promotion explicitly requires user/human approval before continuing. Arrange agent-performable review autonomously; its gate alone does not require user input.
-- Uncharted territory: no established pattern and meaningful risk if guessed.
-
-## Path Resolution
-
-Determine the repository root once before resolving or creating repository-level artifacts:
-
-1. In a Git repository, use the top-level directory reported by `git rev-parse --show-toplevel`.
-2. Outside Git, walk upward from the current working directory and use the directory containing the workspace entrypoint `AGENTS.md`.
-3. If the root remains ambiguous, inspect the workspace structure before writing and ask only when multiple candidates are equally plausible.
-
-Unless a path has an explicit base, resolve paths from the repository root. This applies to paths in `AGENTS.md`, `README.md`, `.agents/instructions/`, plans, and project skills.
-
-- The current working directory is execution context, not the repository root.
-- A nested `AGENTS.md` may add scoped instructions, but it does not redefine the repository root unless it explicitly says so.
-- Before creating `.scratch/`, `plans/`, `wiki/`, `docs/`, or another repository-level directory, check for and reuse `<root>/<directory>`.
-- Never create a duplicate repository-level directory inside a subdirectory merely because the task is running there.
-
-### Repository-Level Directory Invariant
-
-Default repository-level directories have one canonical location: `<root>/<directory>`.
-
-Before creating one, construct its root-relative target and verify that its parent is exactly `<root>`. Do not use a bare relative path such as `wiki/`, `plans/`, `docs/`, or `.scratch/` when the current working directory may be nested. A target such as `<root>/services/api/wiki/` is not the project wiki and must not be created by default.
-
-A nested directory with a repository-level name is permitted only when an existing repository convention explicitly defines it as component-scoped, or the user explicitly requests that scope. Otherwise, reuse the canonical root-level directory or ask when the intended scope is unclear.
+A standalone question, lookup, review, or status request is read-only unless saving or changes are requested. Missing documentation does not expand the assignment.
 
 ## Task Triage
 
-| Level | Criteria | Required workflow |
+| Level | Criteria | Workflow |
 |---|---|---|
-| Trivial | Typo, small doc edit, one config value | Change + quick check |
-| Simple | Isolated file or clear bug | Change + targeted verification |
-| Standard | Multi-file behavior, new feature, schema change | Plan + implement + test + review |
-| Complex | Cross-system, migration, parallel work, high risk | Plan + staged execution + verification gates |
+| Trivial | Typo, one local doc/config change | Direct edit + quick check |
+| Simple | Isolated behavior or clear bug | Direct edit + targeted verification |
+| Standard | Shared behavior, meaningful dependencies or uncertainty | Small plan + implementation + verification/review |
+| Complex | Cross-system migration, high impact, difficult recovery | Staged plan + scoped verification gates |
 
-Choose the level from uncertainty, impact, dependency, and recovery risk, not file count alone. A mechanical change across many files can remain Simple; a small change to a checkpoint, contract, or security boundary can require Standard or Complex planning. An explicit user request for a plan is sufficient to create one.
+Use uncertainty, impact, dependencies, and recovery risk rather than file count. A small contract change can warrant planning; a mechanical multi-file edit may remain Simple. An explicit plan request permits creating a plan.
 
-## Delegation
-
-For Standard or Complex work, proactively delegate bounded subtasks when specialization, independent verification, or parallel work justifies the coordination cost. The user need not name an agent. Handle Trivial and Simple work directly unless the user explicitly requests delegation.
-
-- Choose by the subtask's difficulty and required capability, not the parent model's tier. Prefer configured lower-cost specialists for suitable work; retain synthesis and consequential decisions with the coordinator.
-- Give each child a focused question, minimal context, ownership, and acceptance criteria. Avoid full-history copies, duplicate exploration, and concurrent writes to the same files.
-- Reuse an existing specialist for related follow-ups. Parallelize independent work only; do useful non-overlapping work locally while children run.
-- Check returned evidence before integration. Escalate only the unresolved portion when a specialist lacks capability; do not silently upgrade every child or claim savings without measurement.
-
-## Research To Implementation
-
-When a user moves from research, discussion, or design review into implementation, classify the implementation request again before editing files.
-
-A request to implement immediately does not skip required planning.
-
-- Trivial or Simple: implement directly with targeted verification.
-- Standard: create the smallest useful implementation plan, then implement unless a stop condition applies.
-- Complex: create a staged plan with verification gates. Stop for approval when the plan changes architecture, contracts, data stages, migration strategy, or irreversible behavior.
-- Prior research can be reused as context, but it is not a substitute for an implementation plan unless it already contains scope, acceptance criteria, affected files or systems, risks, and verification.
-- Complexity is based on implementation blast radius, not conversation length.
+Reclassify when discussion becomes implementation. Reuse a prior plan only if it contains actionable scope, work, risks, and verification. A plan request alone does not authorize implementation; an implementation request permits ordinary execution within scope. Prior authorization remains valid.
 
 ## Discovery Readiness
 
-Move from brainstorm/scout/research into planning when the outcome and constraints are clear, a direction is selected with enough evidence for consequential choices, and no unresolved question blocks the scope being made actionable. Non-blocking unknowns may remain when they have an owner, a resolution check, spike, or verification gate.
+Plan once the outcome, constraints, and selected direction are clear enough to execute. Use scout for local behavior, research for external evidence, and brainstorm for unresolved trade-offs; no fixed sequence is required.
 
-- An unresolved architecture, contract, security, or irreversible-behavior choice gates dependent implementation; do not silently decide it in the plan.
-- An explicit plan request may produce a draft with open gates. A draft or accepted plan does not by itself authorize implementation.
-- Use `scout` for local behavior, `research` for external facts, and `brainstorm` for framing/trade-offs as the question changes. Do not keep researching after the decision criteria are covered.
+Unresolved architecture, contract, security, or irreversible-behavior choices gate dependent work only. Non-blocking unknowns need a resolution check; independent authorized work may proceed. Stop research when consequential decision criteria are covered.
+
+## Delegation
+
+For Standard/Complex work, delegate bounded tasks when specialization, independence, or parallel work justifies coordination. Handle small work directly unless delegation is requested.
+
+- Match capability and difficulty to the subtask; prefer configured lower-cost specialists where suitable. Keep synthesis and consequential decisions with the coordinator.
+- Send the task, minimum context/contracts, allowed edit paths, constraints, acceptance checks, and evidence required. Avoid full-history copies, duplicate exploration, and overlapping writes.
+- Use [delegation routing](delegation-routing.md) to select an executor and its adapter. Reuse specialists for related follow-ups; independent review needs a fresh context.
+- Tell delegated executors to complete the assigned work directly; further delegation requires an explicit coordinator assignment. Keep one active writer per affected path.
+- Before retrying or changing executor after a failure, confirm the previous executor has stopped writing, then inspect partial edits, generated artifacts, and verification state. A timeout alone does not prove it stopped; do not start an overlapping writer. Continue only unresolved work and preserve existing changes.
+- Check returned evidence. Escalate only unresolved work; do not claim model choice or savings without runtime/measurement evidence.
 
 ## Durable Knowledge and Resume
 
-During an explicitly assigned discovery or delivery workflow, record meaningful durable deltas in the relevant wiki page while work progresses: verified current behavior, important constraints, accepted or rejected choices, changed assumptions, and useful operational findings. Do not record every turn or create a transcript.
+Choose context by the next action:
 
-- The coordinator owns consolidation. Read-only scout and strategist can return evidence and proposals; delegated writers modify only assigned canonical artifacts.
-- Keep execution progress in the active plan. Wiki knowledge must not depend on an active or completed plan, `.scratch/`, or an expiring report.
-- A standalone question, lookup, review, wiki query, or status request remains read-only unless saving is explicitly requested. Missing wiki initialization is not an excuse to write into a disposable location.
-- At a new session, read `AGENTS.md`, `README.md`, applicable instructions, `wiki/index.md` and the short architecture overview when present. Then read the relevant spec, effective decisions, and active plan if it exists; use scout to check source/config/tests/diff for drift. Load research and superseded decisions only when they affect the next action.
-- If multiple work items are plausible, ask which one to resume. If an active plan is missing, use durable knowledge and source evidence, but do not invent progress, approval, or authorization.
+| Situation | Required context |
+|---|---|
+| Local question or change | Relevant files and applicable constraints |
+| Named-plan continuation | Current checkpoint, effective amendments, relevant source/diff, and linked context needed for the next action |
+| Contract, architecture, or business-rule change | Owning spec and effective accepted decisions before dependent work |
+| Ambiguous project continuation | Wiki index/current work to identify the task; ask if several items remain plausible |
 
-## Decision Reopening
+Reconcile plan claims with actual code/configuration and relevant verification evidence. Record discrepancies and continue only work whose scope and authorization remain clear. A test result predating a relevant change is not proof of the current state. Do not require a full repository scan or full-wiki preload.
 
-Reuse an accepted decision across sessions. Reopen it only when relevant new evidence appears, a constraint changes, an assumption fails, or the user asks. Source drift alone prompts verification and discrepancy reporting, not an automatic redesign.
+If a plan is missing, use durable knowledge and source evidence to establish known facts; never invent progress, approvals, or authorization or recreate the plan automatically. Do not select work merely by newest filename.
 
-Record the trigger, affected scope, and proposed replacement; preserve the old rationale and approval scope. A recommendation is not an accepted decision.
+Keep execution state in the active plan and durable intent/rationale in the owning wiki or established project equivalent. Apply the canonical [wiki persistence scope](wiki.md#persistence-scope) and [artifact lifecycle rules](artifacts.md#plans).
 
-## Evidence-Based Feedback
+## Decision Reopening and Feedback
 
-When a recurring failure or workflow friction is observed, capture the concrete evidence, identify the canonical owner, and propose the smallest correction with a verification check. Project-specific knowledge belongs in the relevant wiki page; temporary task detail stays in the plan; an untested idea remains a hypothesis. Do not silently turn one incident into a universal rule or modify dekit instructions outside the assigned scope.
+Reuse accepted decisions. Reopen one only for relevant new evidence, changed constraints, failed assumptions, or a user request; record the trigger, affected scope, and proposed replacement without erasing old rationale. Source drift prompts verification, not automatic redesign.
 
-## Skill Use
+For recurring failure, preserve concrete evidence and correct its canonical owner. Project-specific lessons stay in project knowledge. Add shared guidance only where reuse and a missing constraint are clear; do not turn every example into a universal rule.
 
-Use task-specific skills when they reduce risk or context.
-
-When handing work to another runner, tool, or session, include:
-
-- Task.
-- Files to read.
-- Files allowed to modify.
-- Acceptance criteria.
-- Constraints.
-- Report path, if a report is expected.
-
-Do not include full chat history or unrelated plan files.
+Keep explicit user constraints and non-obvious gotchas. Prune generic teaching, duplicate policy, and unused procedures. A shorter file alone does not prove better agent outcomes; use [proportional verification](verification.md#evals).
 
 ## Scratch Workspace
 
-Use `<root>/.scratch/` for temporary local artifacts, experiments, generated reports, packaging output, and reusable work-in-progress that should not become source yet.
+Place agent-created experiments, ad hoc scripts, temporary reports, and reusable work-in-progress under `<root>/.scratch/`, using descriptive subdirectories. Tool-managed caches/build outputs keep conventional locations; isolated tests may use normal temporary fixtures.
 
-- Scratch files may persist across work sessions. Do not remove them just because a task is complete.
-- Clean scratch files only when the user asks, the files are unsafe, or they are clearly obsolete and no longer useful.
-- Do not store secrets, production data extracts, credentials, or production imports in `.scratch/`.
-- Prefer descriptive subdirectories so future runners can understand why a scratch artifact exists.
-- If a scratch artifact becomes repeatedly useful, propose promoting it into a skill, script, reference, template, or source file.
-- Mention important scratch artifacts in the completion report when they are created or reused.
+- Temporary work may persist across sessions. Completion or age alone does not authorize deletion. Clean only on user request, for unsafe content, or when clearly obsolete and no longer useful; preserve work still in use.
+- No secrets, production data extracts, credentials, or production imports.
+- Promote repeatedly useful material only when it belongs in maintained source, a helper, reference, or wiki. Mention useful scratch artifacts in the handoff.
 
-## Completion Report
+## Completion
 
-Completing a task or plan does not by itself require a wiki write. In an explicitly assigned discovery or delivery workflow, update the relevant wiki page whenever a meaningful durable fact, decision, or verified behavior changes; do not wait for a major change or the end of the plan. Standalone questions and read-only modes remain non-mutating.
+Verify the requested outcome with task-specific evidence and assess the diff. Apply [wiki persistence scope](wiki.md#persistence-scope) for durable updates. Wider wiki review follows the [wiki threshold](wiki.md#maintenance-and-review-threshold), not every edit.
 
-Before reporting substantial implementation done, assess the diff and verification artifacts. Compare the relevant wiki pages when the workflow owns persistence, or when the implementation changes architecture, system boundaries, data flow, deployment topology, durable contracts, or major cross-cutting operational behavior. The broad threshold triggers a wider review, not an unconditional write.
-
-Before closing, confirm essential knowledge and verification evidence do not depend only on `plans/<plan-id>` or `.scratch/`. A completed plan may be manually deleted at any time; do not create deletion hooks, require a cleanup step, or recreate it when absent.
-
-When the relevant wiki page is missing and durable persistence is part of the assigned scope, initialize only the minimum useful structure. Otherwise report the missing persistence target instead of silently writing a disposable substitute.
-
-End substantial work with:
-
-- What changed.
-- Wiki action only when an update was performed, explicitly requested, or the automatic threshold was met.
-- Verification performed.
-- Known risks or skipped checks.
-- Unresolved questions, if any.
+Before closing, ensure essential knowledge and verification do not rely only on disposable plans or scratch. Report the result, relevant verification/limitations, and unresolved questions; mention wiki changes only when performed or relevant. Report missing persistence targets instead of silently replacing them with disposable storage.

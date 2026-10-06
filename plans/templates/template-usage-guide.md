@@ -16,6 +16,7 @@ The legacy paths remain selectors for compatibility. They are not independent te
 
 - Remove irrelevant sections instead of filling them with `N/A`.
 - Keep one Work Items table and one Execution State section.
+- Keep overall status in frontmatter; update it with the checkpoint rather than repeating it in the body.
 - Put checked evidence and assumptions near the decision they affect.
 - Mark unknowns and the check that resolves them; do not guess a root cause, filename, estimate, approval, or result.
 - Add a scenario section when its concern changes correctness, recovery, rollout, or verification.
@@ -25,9 +26,9 @@ The legacy paths remain selectors for compatibility. They are not independent te
 
 ## Continuing Work
 
-Read the current plan state, active amendment pointer, relevant source/diff, assumptions, and linked durable wiki artifacts before resuming. If the plan was manually deleted, continue only from the durable wiki and source evidence; do not infer the missing checklist, approvals, or next action.
+Read the current plan state, active amendment pointer, relevant source/diff, assumptions, and linked durable context needed for the next action before resuming. If the plan was manually deleted, continue only from the durable wiki and source evidence; do not infer the missing checklist, approvals, or next action.
 
-- Update routine progress, evidence, blockers, and next action in the active plan.
+- Update completed work, evidence, blockers, and next action at meaningful checkpoints: work-item completion, material approach change, blocker discovery, verification milestone, or handoff. Do not log every edit or tool call.
 - Create a numbered amendment or appendix only for material scope, design, acceptance, dependency, or recovery changes.
 - Completed plans are disposable: retain them, archive them, or delete them manually. Their essential design, decision, architecture, and verification knowledge must already live in the owning durable artifacts. Use a linked follow-up plan for new work.
 

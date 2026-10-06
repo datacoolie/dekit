@@ -21,17 +21,25 @@ Choose the smallest set that proves the change:
 | Pipeline | Unit test + schema check + row/reconciliation check where possible |
 | SQL | Compile/parse check + representative result validation |
 | Spark | Local/unit run where possible + partition/shuffle risk review |
-| Refactor | Existing tests + behavior equivalence check |
+| Refactor | Relevant existing tests + behavior equivalence + evidence of the intended structural outcome |
 | Security | Secret scan for touched files + threat-specific test |
+
+## Design conformance and refactoring
+
+For affected boundaries, compare actual callers, state/resource owners, lifecycle, orchestration, and dependency direction with the effective contract or accepted decision. Use [design readiness](artifacts.md#design-contracts-and-work-item-readiness) for unresolved choices. Apply this to modules, SQL, and notebooks as relevant; it does not require classes or interfaces.
+
+- A defect or contract violation needs evidence and reachable impact. A structural improvement needs a concrete maintenance/change cost and trade-off; it is advisory unless it violates a requirement or acceptance gate. Label optional style preferences separately and do not treat them as defects.
+- For refactoring, state the structural outcome and compare relevant before/after ownership, callers, or dependencies alongside behavior checks. Passing tests alone cannot show that duplicate ownership or misplaced orchestration was removed.
+- If implementation contradicts an effective design decision, report the discrepancy. Update intent only through the [decision-reopening policy](agent-operating-model.md#decision-reopening-and-feedback), preserving rationale.
 
 ## Durable Context Checks
 
 When a task spans sessions or updates project memory, verify the smallest relevant slice:
 
 - A completed plan can be removed in an isolated fixture without removing essential intent, decision, current-behavior references, or verification evidence from their owning artifacts. Never delete the user's real plan as a test.
-- A discovery/delivery workflow updates durable wiki knowledge when a meaningful fact, rationale, decision, assumption, or verified behavior changes; standalone read-only work leaves files unchanged.
+- Durable updates follow [wiki persistence scope](wiki.md#persistence-scope); standalone read-only work leaves files unchanged and a missing wiki does not trigger automatic initialization.
 - Proposed intent, accepted decisions, verified behavior, and execution progress remain distinguishable. A source/spec discrepancy is reported, not silently normalized.
-- Resume checks read the root entrypoint, wiki routing/current architecture, relevant spec and decisions, then an active plan if present and scout evidence for drift. Missing plans or multiple active work items must not produce invented progress or newest-file guessing.
+- Resume checks reconcile a named plan's checkpoint with relevant source/diff and the durable context needed for the next action. Consult specs/accepted decisions for contract or behavior changes, and wiki routing when the work needs orientation. Missing plans or ambiguous work must not produce invented progress or newest-file guessing.
 
 Treat these as task-specific acceptance checks, not a reason to create a mandatory memory file or run a broad wiki audit for every change.
 
@@ -46,15 +54,11 @@ Use an independent review before implementing work with shared-contract changes,
 
 ## Evals
 
-When improving runtime behavior, prompts, adapters, or instructions:
+For instruction, skill, or adapter changes, verify concrete constraints first: metadata/dependencies, relevant links, scoped fixtures, and review for conflicting policy. These checks do not prove improved agent behavior.
 
-1. Define the desired measurable behavior.
-2. Establish baseline output.
-3. Change one thing.
-4. Re-run the same eval.
-5. Keep the change only if results improve or context cost drops without regression.
+Use representative behavioral comparisons when cases exist or when claiming quality/cost gains. Keep task, model/settings, and outcome criteria comparable; include a no-skill baseline when evaluating a skill. Track useful outcomes and rework alongside context, tool calls, time, or cost where available.
 
-Do not keep instructions because they feel useful.
+When representative cases do not exist, record behavioral evaluation as deferred and collect cases from real work. Do not block an explicitly accepted mechanical/content improvement solely for missing live-agent evals, or claim improvement from fewer lines alone. Keep regression evidence and revisit guidance when real results contradict it.
 
 ## Review
 

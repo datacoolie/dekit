@@ -20,7 +20,7 @@ Apply to pipelines, Spark, SQL, notebooks, data models, metadata, orchestration,
 
 ## Quality Gates
 
-At layer boundaries, verify at minimum:
+At layer boundaries, require the checks applicable to the layer contract. Do not invent keys, measures, or freshness targets just to fill a checklist:
 
 - Row count is present and within expected tolerance.
 - Required columns exist with expected types.

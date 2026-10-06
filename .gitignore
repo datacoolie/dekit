@@ -165,6 +165,3 @@ temp/
 # Agent Workspace
 # ============================================================
 .scratch/
-
-# Generated Claude Code links to canonical skills
-.claude/skills/

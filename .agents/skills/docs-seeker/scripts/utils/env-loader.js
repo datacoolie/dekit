@@ -2,7 +2,7 @@
 
 /**
  * Environment variable loader for docs-seeker skill
- * Respects order: process.env > skill/.env > skills/.env > .claude/.env
+ * Respects order: process.env > skill/.env > skills/.env > .agents/.env
  */
 
 const fs = require('fs');
@@ -41,16 +41,16 @@ function parseEnvFile(content) {
 
 /**
  * Load environment variables from .env files in priority order
- * Priority: process.env > skill/.env > skills/.env > .claude/.env
+ * Priority: process.env > skill/.env > skills/.env > .agents/.env
  * @returns {Object} Merged environment variables
  */
 function loadEnv(options = {}) {
   const skillDir = path.resolve(__dirname, '../..');
   const skillsDir = path.resolve(skillDir, '..');
-  const claudeDir = path.resolve(skillsDir, '..');
+  const agentsDir = path.resolve(skillsDir, '..');
 
   const envPaths = options.paths || [
-    path.join(claudeDir, '.env'),
+    path.join(agentsDir, '.env'),
     path.join(skillsDir, '.env'),
     path.join(skillDir, '.env'),
   ];
@@ -95,7 +95,7 @@ module.exports = {
   defaultEnvPaths: () => {
     const skillDir = path.resolve(__dirname, '../..');
     const skillsDir = path.resolve(skillDir, '..');
-    const claudeDir = path.resolve(skillsDir, '..');
-    return [path.join(claudeDir, '.env'), path.join(skillsDir, '.env'), path.join(skillDir, '.env')];
+    const agentsDir = path.resolve(skillsDir, '..');
+    return [path.join(agentsDir, '.env'), path.join(skillsDir, '.env'), path.join(skillDir, '.env')];
   },
 };

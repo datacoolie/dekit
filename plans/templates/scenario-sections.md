@@ -21,6 +21,7 @@ Add only the sections that match the task. These prompts extend [`plan-template.
 ## Design Contract
 
 - Owning spec / decision / existing contract: [durable path; lifecycle and persistence owner]
+- Roles and ownership: [changed responsibilities/non-responsibilities, state/resource/lifecycle owners, composition/orchestration owner; follow the canonical design-contract policy]
 - Relevant boundary: [inputs/outputs/errors, invariants, allowed variation, dependency direction, compatibility; include only what changes]
 - Implementation gates: [unresolved choice, affected task IDs, resolution evidence]
 
@@ -85,7 +86,7 @@ Read [`data-engineering-constraints.md`](../../.agents/instructions/data-enginee
 
 - Invariants: [outputs, contracts, side effects, ordering, idempotency]
 - Current baseline: [representative behavior and performance]
-- Structural changes: [modules, interfaces, dependencies]
+- Structural outcome and evidence: [specific ownership/boundary/dependency improvement and before/after callers or source evidence]
 - Equivalence checks: [tests and representative results]
 - Compatibility/deprecation: [if applicable]
 
@@ -101,7 +102,8 @@ Read [`data-engineering-constraints.md`](../../.agents/instructions/data-enginee
 
 - Before/after behavior: [what users or agents do differently]
 - Affected consumers: [commands, runners, skills, docs, teams]
-- Verification: [link/path checks, fixture, eval, or rendered output]
+- Verification: [mechanical/link checks, scoped fixtures, review, or rendered output]
+- Behavioral evaluation: [representative cases/results when available; otherwise state deferred and avoid performance claims]
 - Compatibility: [legacy path or terminology retained, redirected, or deprecated]
 - Publication/release: [only if in scope]
 

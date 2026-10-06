@@ -27,7 +27,7 @@ Do not invent filenames, estimates, root causes, approvals, or results. For data
 - Check `plans/` for active or overlapping work and record the relationship.
 - Update routine progress in the current plan; use a numbered amendment for material scope, design, acceptance, dependency, or recovery changes.
 - Validate hidden coupling, breaking changes, test gaps, and authorization before handoff.
-- Apply [work-item readiness and contract ownership](../../instructions/artifacts.md#design-contracts-and-work-item-readiness); include a compact handoff for delegated tasks and link task IDs to acceptance criteria.
+- Apply [work-item readiness and contract ownership](../../instructions/artifacts.md#design-contracts-and-work-item-readiness); resolve relevant ownership/lifecycle/composition choices before dependent implementation. Include a compact handoff for delegated tasks and link task IDs to acceptance criteria.
 - For risk-bearing work, arrange [independent plan review](../../instructions/verification.md#plan-review), resolve findings, and recheck material fixes before dependent implementation.
 - Close only when scoped criteria have evidence and durable outcomes are recorded in their owning artifacts. A completed plan may be retained, archived, or manually deleted; deletion never authorizes recreation or inferred progress. Plan status never authorizes deployment.
 - Reuse accepted decisions. Reopen one only for new evidence, changed constraints, failed assumptions, or a user request, and record the trigger and affected scope.

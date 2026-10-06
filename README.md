@@ -13,16 +13,7 @@ Portable instruction and skill toolkit for data engineering teams. Helps AI runn
 
 ### Runner Adapters
 
-[Claude Code 2.1.277+](https://github.com/anthropics/claude-code/releases/tag/v2.1.277) can read `AGENTS.md` when the project has no `CLAUDE.md`, subject to provider support. To make dekit skills discoverable as Claude skills, run this from `<root>` after cloning or adding skills (use `<root>/.venv` Python when it exists):
-
-```text
-python scripts/setup_claude_skills.py
-python scripts/setup_claude_skills.py --check
-```
-
-The script creates local `.claude/skills/<name>` links to the canonical `.agents/skills/<name>` directories: symlinks on Unix, directory junctions on Windows. These generated links are Git-ignored; no skill content is copied. [Claude Code documents per-skill folder links](https://code.claude.com/docs/en/skills); verify discovery with its `/skills` command.
-
-For bounded independent subtasks such as scout, review, scan, or test, non-Codex runners that can execute local commands follow [cross-runner delegation](.agents/instructions/cross-runner-delegation.md): use `codex exec` with only `gpt-6-luna:max` or `gpt-5.6-luna:max`, then fall back to a native subagent if Codex cannot complete the work. Codex itself keeps its [native role routing](.agents/instructions/codex-delegation.md).
+Follow [delegation routing](.agents/instructions/delegation-routing.md) to select an executor. Codex uses native execution by default; non-Codex runners prefer bounded independent Codex CLI work with Luna/max and native fallback. An explicit request for **Codex API** uses `~/.codex-api` and its configured provider/model/effort from any runner. [Codex delegation](.agents/instructions/codex-delegation.md) owns invocation details.
 
 ### Data Engineering Foundation
 
@@ -95,9 +86,17 @@ Convention: copy `plans/templates/plan-template.md` to `<root>/plans/YYMMDD-feat
 
 ## Wiki & Session Continuity
 
-When a project needs persistent internal knowledge, initialize `<root>/wiki/index.md` and add only populated areas: `specs/`, `research/`, `architecture/`, `decisions/`, and `runbooks/`. The dekit repository's own routing map is [`wiki/index.md`](wiki/index.md); it is this repository's knowledge instance, not a runtime dependency for projects that consume dekit. Update the owning page during an assigned discovery or delivery workflow when a meaningful fact, decision, rationale, or verified behavior changes.
+When a project needs persistent internal knowledge, initialize `<root>/wiki/index.md` on request and add only populated areas: `specs/`, `research/`, `architecture/`, `decisions/`, and `runbooks/`. When present, this dekit checkout's `wiki/index.md` records the toolkit's own knowledge; consumer projects maintain their own wiki and do not copy this instance. Assigned updates follow [wiki persistence scope](.agents/instructions/wiki.md#persistence-scope).
 
-At a new session, read `AGENTS.md`, this README, applicable instructions, the wiki index/current architecture, the relevant spec and decisions, then the active plan (if present) and scout the affected source/config/tests. Completed plans may be deleted manually; they are not the long-term memory store. See [wiki instructions](.agents/instructions/wiki.md) and [artifact rules](.agents/instructions/artifacts.md).
+Read context by task: local work uses relevant files/constraints, a named-plan continuation starts from its checkpoint and source/diff, contract or business-behavior changes consult owning specs/accepted decisions, and ambiguous project continuation uses the wiki index for orientation. Completed plans may be deleted manually; they are not the long-term memory store. See [wiki instructions](.agents/instructions/wiki.md) and [artifact rules](.agents/instructions/artifacts.md).
+
+## Toolkit Packaging and Verification
+
+The toolkit ships as `AGENTS.md`, `.agents/`, and `plans/templates/` together; individual skills may reference shared instructions/templates. Consumer projects maintain their own wiki and execution plans. Codex role definitions are optional adapters.
+
+Use [verification policy](.agents/instructions/verification.md) for task-specific checks. Helpers remain within the skills that own them; use the repository's `.venv` Python when present. Root-level setup/check scripts and the Claude skills adapter are currently retired.
+
+Keep guidance focused on constraints, observed gotchas, and useful decision checks. Procedures must contribute task-specific information; remove generic teaching and repeated policy. Collect behavioral comparisons from real workloads before claiming quality or cost improvements.
 
 ## Getting Started
 

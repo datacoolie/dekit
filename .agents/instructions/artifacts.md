@@ -65,7 +65,7 @@ Create an execution plan for Standard or Complex work, or when the user explicit
 
 An implementation plan is an execution artifact, not the long-term home of project knowledge. It may be manually deleted at any time, including immediately after completion. Do not make a wiki page, decision, architecture description, test evidence, or follow-up depend on a completed plan's existence.
 
-Plan metadata should use YAML frontmatter when the plan is stored as Markdown. Use visible tables for reviewable content, not as the source of truth for metadata.
+Plan metadata should use YAML frontmatter when the plan is stored as Markdown. When present, frontmatter owns overall status; update it at checkpoints instead of duplicating status in the body. Preserve a legacy plan's single existing status location without requiring bulk migration. Use visible tables for reviewable content and work-item state, not as the source of truth for plan metadata.
 
 Every plan must contain only the sections relevant to its task:
 
@@ -90,7 +90,9 @@ Plan status is execution state, not permission to deploy or perform another exte
 - `done` / `complete` / `completed` / `implemented`: close only with scoped evidence and durable outcomes already recorded in their owning artifacts; retain, archive, or manually delete the plan according to user preference. Use a linked follow-up plan for new work when needed.
 - `cancelled` / `superseded`: preserve partial outcomes and link a replacement when one exists.
 
-When continuing a plan, read its current state, relevant amendments, source/diff, assumptions, and linked durable artifacts before acting. If the plan is missing, use the relevant wiki pages and source evidence to determine what is known; do not recreate progress, approvals, or authorization from filenames or memory. If the next action is ambiguous or active items conflict, ask before implementing.
+When continuing a plan, reconcile its checkpoint and effective amendments with relevant source/diff, assumptions, and durable context needed for the next action. If the plan is missing, use the relevant wiki pages and source evidence to determine what is known; do not recreate progress, approvals, or authorization from filenames or memory. If the next action is ambiguous or active items conflict, ask before implementing.
+
+Update execution state at meaningful checkpoints: work-item completion, material approach change, blocker discovery, verification milestone, or handoff/session stop. Keep completed items, evidence, blockers, and next action together; do not log each edit or command. Evidence should identify the check, relevant revision or uncommitted changes/environment, result, and limitation. Recheck when later changes invalidate it.
 
 Create a numbered amendment or appendix only for a material change to scope, design, acceptance criteria, dependencies, or recovery strategy. It must reference the parent, affected identifiers, replacement scope, evidence needs, status, and reason. Keep a current-amendment pointer in the parent when amendments exist. Creating an amendment does not approve it.
 
@@ -104,7 +106,7 @@ Keep plan indexes short. Put detailed phase work in separate files only when nee
 
 ### Design contracts and work-item readiness
 
-When work changes interfaces, shared boundaries, cross-system behavior, or compatibility, resolve the relevant contract before dependent implementation: inputs/outputs and errors, invariants, allowed variation, dependency direction, and compatibility as applicable. Link an existing contract rather than restating it. Keep durable design and rationale in the owning wiki spec/decision (or established project equivalent); the plan holds execution-specific references. The coordinator owns persistence; a planner writes a durable page only when explicitly assigned that page.
+When work changes interfaces, shared boundaries, cross-system behavior, or compatibility, resolve the relevant contract before dependent implementation: responsibilities and non-responsibilities; ownership of state, invariants, resources, and lifecycle; who composes/orchestrates the components; inputs/outputs and errors, allowed variation, dependency direction, and compatibility. Include only what affects the change; local work needs no per-class design document. Link an existing contract rather than restating it. Keep durable design and rationale in the owning wiki spec/decision (or established project equivalent); the plan holds execution-specific references. The coordinator owns persistence; a planner writes a durable page only when explicitly assigned that page.
 
 A work item is ready when its outcome, edit boundary, applicable contract, dependencies, and verification are clear enough to execute without making an unresolved consequential design decision. Gate only affected work; independent authorized tasks and bounded evidence-gathering spikes may proceed. Routine implementation choices remain with the implementer. New contradictory evidence triggers discrepancy reporting and scoped replanning.
 
@@ -114,7 +116,7 @@ Assess independent plan review using [verification.md](verification.md#plan-revi
 
 ### Durable knowledge and deletion independence
 
-During discovery and delivery, update the owning wiki spec, research, architecture, decision, or runbook when a meaningful fact, rationale, decision, assumption, or verified behavior changes. Do not wait for the plan to finish and do not copy the whole plan into the wiki.
+Apply [wiki persistence scope](wiki.md#persistence-scope) during discovery and delivery. Keep durable knowledge in its owning artifact, not a copy of the whole plan; do not wait for plan completion when persistence is in scope.
 
 Before marking a plan complete, leave durable records for:
 

@@ -26,7 +26,7 @@ Answer external-fact and technology questions with bounded, source-backed eviden
 
 Use correctness/fit, operations, performance, security, cost, maturity, lock-in, and migration risk only when relevant. Present 2–3 options only when a choice exists; mark a provisional recommendation when evidence is incomplete. Do not present brainstorming guesses as facts.
 
-When an explicitly assigned discovery/delivery workflow needs durable research, persist the concise conclusion and source links in the owning `wiki/research/` page or hand it to the coordinator for consolidation. Standalone research remains non-mutating unless saving is requested.
+When an explicitly assigned discovery/delivery workflow needs durable research, hand the concise conclusion and source links to the coordinator or the specified owning `wiki/research/` page. Standalone research remains non-mutating unless saving is requested.
 
 ## Output
 

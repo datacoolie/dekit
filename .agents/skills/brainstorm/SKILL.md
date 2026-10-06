@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: "Explore ambiguous ideas and solution directions before evidence-backed research or implementation planning. Use for ideation, framing, assumption checks, option generation, product or architecture trade-offs, and deciding whether research or a plan is needed."
+description: "Frame ambiguous product, architecture, or workflow choices before research or implementation; use for assumptions, options, and trade-offs, not settled factual lookup or execution."
 license: MIT
 ---
 
@@ -19,11 +19,12 @@ Shape an uncertain problem before committing to research, a plan, or code.
 
 - State the outcome, constraints, non-goals, and assumptions.
 - Surface failure modes, reversibility, and over-engineering risk.
+- For uncertain component boundaries, use the relevant [design-contract questions](../../instructions/artifacts.md#design-contracts-and-work-item-readiness) to expose ownership and responsibility choices.
 - Present options or a comparison only when the user must choose; do not force a fixed count.
 - Recommend a direction when evidence is sufficient; otherwise name the missing evidence and next check.
 - Reopen an accepted direction only for new evidence, changed constraints, a failed assumption, or a user request.
 
-Default output is analysis only: do not edit product code, scaffold code, or present unsourced external facts as settled. In an explicitly assigned discovery/delivery workflow, the coordinator may persist consequential findings, assumptions, and accepted/replaced decisions in the owning wiki spec or decision page; do not create a chat transcript or duplicate the plan.
+Default output is analysis only: do not edit product code, scaffold code, or present unsourced external facts as settled.
 
 ## Output
 

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review implementation plans, code, and data pipeline changes for correctness, feasibility, security, contract breaks, and missing verification. Use for plan critique before implementation, PRs, pending diffs, or codebase risk scans."
+description: "Review plans, code, and data-pipeline changes for correctness, design conformance, maintainability, security, contract breaks, and missing verification; use for read-only findings, not implementation."
 ---
 
 # Code Review
@@ -17,6 +17,8 @@ Review the requested scope adversarially and read-only. Findings require evidenc
 
 Trace changed contracts, callers, data grain, error paths, trust boundaries, performance-sensitive paths, and verification. Do not report style preferences as defects or apply fixes unless separately authorized.
 
+For affected design boundaries or structural review, apply [design-conformance criteria](../../instructions/verification.md#design-conformance-and-refactoring). Consult [paired cases](references/design-integrity-cases.md) only when calibrating an ambiguous design or wiki discrepancy finding.
+
 ## Severity
 
 Base severity on reachable impact, likelihood, and reversibility: critical (security/data loss/irreversible break), high (likely production failure or required gate missing), medium (plausible correctness/operation risk), low (non-blocking issue). A category alone is not severity.
@@ -27,9 +29,12 @@ Base severity on reachable impact, likelihood, and reversibility: critical (secu
 Findings:
 - [severity] file:line — issue, impact, evidence, smallest safe fix
 
-Open questions:
-- ...
+Suggestions (if any):
+- file:line — structural improvement, concrete benefit/cost, trade-off
 
 Summary:
 - Scope and verification observed: ...
+
+Open questions:
+- ...
 ```

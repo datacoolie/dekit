@@ -7,7 +7,7 @@ created: YYYY-MM-DD
 
 # [Plan title]
 
-Use this core with only the scenario sections that apply. Follow the canonical plan contract in [`artifacts.md`](../../.agents/instructions/artifacts.md#plans).
+Use only sections needed for this task; omit unused tables/fields. Local Simple/Trivial fixes need no plan unless explicitly requested or risk warrants one. Follow the canonical plan contract in [`artifacts.md`](../../.agents/instructions/artifacts.md#plans).
 
 This plan is disposable execution state. Link the owning wiki spec, research, architecture, decision, or runbook for knowledge that must survive manual plan deletion; do not make this file their only copy.
 
@@ -80,7 +80,7 @@ For delegated items only, add a short handoff where the table is insufficient:
 |---|---|---|---|---|
 | AC1 | [observable outcome] | T1 | [command, test, review, or data check] | [link or result] |
 
-Add only relevant [scenario sections](scenario-sections.md).
+Add only relevant [scenario sections](../templates/scenario-sections.md).
 
 ## Risks and Recovery
 
@@ -90,9 +90,10 @@ Add only relevant [scenario sections](scenario-sections.md).
 
 ## Execution State
 
-- Status: `draft`
+Update frontmatter status and this checkpoint at work-item completion, material change, blocker, verification milestone, or handoff. Frontmatter is the sole overall-status owner. On resume, reconcile this checkpoint with relevant source/diff and context needed for the next action.
+
 - Completed: [none or task IDs with evidence]
-- Evidence: [links or commands]
+- Evidence: [check/command, relevant revision or uncommitted state/environment, result, limitation]
 - Blockers: [none or Q/task IDs and unblock condition]
 - Current amendment: [none or link to the effective amendment]
 - Next action: [one actionable task]
