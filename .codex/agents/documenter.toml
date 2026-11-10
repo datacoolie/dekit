@@ -1,6 +1,6 @@
 name = "documenter"
 description = "Use for assigned user-facing documentation or durable internal wiki updates. Produce concise, source-linked pages with clear lifecycle status; no product-code changes."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 

@@ -10,7 +10,7 @@ Copy [`plan-template.md`](plan-template.md) for every Standard/Complex execution
 | `bug-fix-template.md` | Diagnosis/bug, incident, data repair, or security sections as applicable |
 | `refactor-template.md` | Refactor, performance/cost, migration, or data pipeline sections as applicable |
 
-The legacy paths remain selectors for compatibility. They are not independent templates.
+The feature/bug/refactor files remain selectors, not independent templates. All resources now live beside this guide; the former `plans/templates/` paths are retired.
 
 ## Adaptation Rules
 
@@ -21,7 +21,8 @@ The legacy paths remain selectors for compatibility. They are not independent te
 - Mark unknowns and the check that resolves them; do not guess a root cause, filename, estimate, approval, or result.
 - Add a scenario section when its concern changes correctness, recovery, rollout, or verification.
 - Use the design-contract and plan-review sections only for their stated triggers. Link durable contract details, assess readiness per work item, and keep task-to-acceptance links lightweight.
-- Keep plan paths root-relative in prose as `<root>/plans/...`; resolve Markdown links relative to the file containing them.
+- Use the canonical plan location, `<root>/plans/<plan_id>/plan.md`; resolve Markdown links relative to the file containing them.
+- When copying the core or scenario sections into a plan, rebase local links from the asset directory to the destination and verify them. From `<root>/plans/<plan_id>/plan.md`, shared policies use `../../.agents/instructions/` and these assets use `../../.agents/skills/plan/assets/templates/`.
 - Use Mermaid only when a complex relationship becomes easier to understand; keep the one-sentence takeaway and validate syntax.
 
 ## Continuing Work
@@ -34,7 +35,7 @@ Read the current plan state, active amendment pointer, relevant source/diff, ass
 
 ## Canonical Rules
 
-- Plan contract and lifecycle: [`artifacts.md`](../../.agents/instructions/artifacts.md#plans)
-- Triage and resume context: [`agent-operating-model.md`](../../.agents/instructions/agent-operating-model.md#task-triage)
-- Data constraints and promotion gates: [`data-engineering-constraints.md`](../../.agents/instructions/data-engineering-constraints.md)
-- Verification and evals: [`verification.md`](../../.agents/instructions/verification.md)
+- Plan contract and lifecycle: [`artifacts.md`](../../../../instructions/artifacts.md#plans)
+- Triage and resume context: [`agent-operating-model.md`](../../../../instructions/agent-operating-model.md#task-triage)
+- Data constraints and promotion gates: [`data-engineering-constraints.md`](../../../../instructions/data-engineering-constraints.md)
+- Verification and evals: [`verification.md`](../../../../instructions/verification.md)

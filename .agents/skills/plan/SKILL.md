@@ -24,7 +24,7 @@ Do not invent filenames, estimates, root causes, approvals, or results. For data
 
 ## Operations
 
-- Check `plans/` for active or overlapping work and record the relationship.
+- Check `<root>/plans/` for active or overlapping work and record the relationship; use the canonical [plan location](../../instructions/artifacts.md#plans).
 - Update routine progress in the current plan; use a numbered amendment for material scope, design, acceptance, dependency, or recovery changes.
 - Validate hidden coupling, breaking changes, test gaps, and authorization before handoff.
 - Apply [work-item readiness and contract ownership](../../instructions/artifacts.md#design-contracts-and-work-item-readiness); resolve relevant ownership/lifecycle/composition choices before dependent implementation. Include a compact handoff for delegated tasks and link task IDs to acceptance criteria.
@@ -32,12 +32,12 @@ Do not invent filenames, estimates, root causes, approvals, or results. For data
 - Close only when scoped criteria have evidence and durable outcomes are recorded in their owning artifacts. A completed plan may be retained, archived, or manually deleted; deletion never authorizes recreation or inferred progress. Plan status never authorizes deployment.
 - Reuse accepted decisions. Reopen one only for new evidence, changed constraints, failed assumptions, or a user request, and record the trigger and affected scope.
 
-Use [plan-template.md](../../../plans/templates/plan-template.md) when a template helps, and keep scenario sections conditional.
+Use [plan-template.md](assets/templates/plan-template.md) when a template helps; read only relevant [scenario sections](assets/templates/scenario-sections.md). When copying into `<root>/plans/<plan_id>/`, rebase local links to the destination and verify them; see the [adaptation guide](assets/templates/template-usage-guide.md#adaptation-rules) when needed.
 
 ## Output
 
 ```markdown
-Plan: plans/<id>/plan.md
+Plan: <root>/plans/<plan_id>/plan.md
 Summary: <goal, scope, risk, verification>
 Open questions:
 - ...

@@ -36,7 +36,7 @@ For affected boundaries, compare actual callers, state/resource owners, lifecycl
 
 When a task spans sessions or updates project memory, verify the smallest relevant slice:
 
-- A completed plan can be removed in an isolated fixture without removing essential intent, decision, current-behavior references, or verification evidence from their owning artifacts. Never delete the user's real plan as a test.
+- Wiki content and source/relationship metadata contain no links to disposable plans or their reports. A plan can be removed in an isolated fixture without removing essential intent, decision, current-behavior references, or verification evidence from owning artifacts. Never delete the user's real plan as a test.
 - Durable updates follow [wiki persistence scope](wiki.md#persistence-scope); standalone read-only work leaves files unchanged and a missing wiki does not trigger automatic initialization.
 - Proposed intent, accepted decisions, verified behavior, and execution progress remain distinguishable. A source/spec discrepancy is reported, not silently normalized.
 - Resume checks reconcile a named plan's checkpoint with relevant source/diff and the durable context needed for the next action. Consult specs/accepted decisions for contract or behavior changes, and wiki routing when the work needs orientation. Missing plans or ambiguous work must not produce invented progress or newest-file guessing.
@@ -54,7 +54,7 @@ Use an independent review before implementing work with shared-contract changes,
 
 ## Evals
 
-For instruction, skill, or adapter changes, verify concrete constraints first: metadata/dependencies, relevant links, scoped fixtures, and review for conflicting policy. These checks do not prove improved agent behavior.
+For instruction, skill, or helper changes, verify concrete constraints first: metadata/dependencies, relevant links, scoped fixtures, and review for conflicting policy. These checks do not prove improved agent behavior.
 
 Use representative behavioral comparisons when cases exist or when claiming quality/cost gains. Keep task, model/settings, and outcome criteria comparable; include a no-skill baseline when evaluating a skill. Track useful outcomes and rework alongside context, tool calls, time, or cost where available.
 

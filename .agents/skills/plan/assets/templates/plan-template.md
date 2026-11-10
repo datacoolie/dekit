@@ -7,7 +7,7 @@ created: YYYY-MM-DD
 
 # [Plan title]
 
-Use only sections needed for this task; omit unused tables/fields. Local Simple/Trivial fixes need no plan unless explicitly requested or risk warrants one. Follow the canonical plan contract in [`artifacts.md`](../../.agents/instructions/artifacts.md#plans).
+Use only sections needed for this task; omit unused tables/fields. Local Simple/Trivial fixes need no plan unless explicitly requested or risk warrants one. Follow the canonical plan contract in [`artifacts.md`](../../../../instructions/artifacts.md#plans).
 
 This plan is disposable execution state. Link the owning wiki spec, research, architecture, decision, or runbook for knowledge that must survive manual plan deletion; do not make this file their only copy.
 
@@ -62,7 +62,7 @@ Consequential alternatives:
 
 ## Work Items
 
-Before starting an item, apply [readiness and contract rules](../../.agents/instructions/artifacts.md#design-contracts-and-work-item-readiness). Unresolved gates block dependent items only.
+Before starting an item, apply [readiness and contract rules](../../../../instructions/artifacts.md#design-contracts-and-work-item-readiness). Unresolved gates block dependent items only.
 
 | ID | Task | Depends on | Completion evidence | Status |
 |---|---|---|---|---|
@@ -80,7 +80,7 @@ For delegated items only, add a short handoff where the table is insufficient:
 |---|---|---|---|---|
 | AC1 | [observable outcome] | T1 | [command, test, review, or data check] | [link or result] |
 
-Add only relevant [scenario sections](../templates/scenario-sections.md).
+Add only relevant [scenario sections](scenario-sections.md).
 
 ## Risks and Recovery
 

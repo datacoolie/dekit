@@ -1,6 +1,6 @@
 # dekit
 
-Portable instruction and skill toolkit for data engineering teams. Helps AI runners build, test, deploy, review, document, and maintain data pipelines without depending on platform-specific wrappers.
+Portable instruction and skill toolkit for data engineering teams. Gives AI agents focused guidance to build, test, deploy, review, document and maintain data pipelines.
 
 ## What's Inside
 
@@ -9,11 +9,7 @@ Portable instruction and skill toolkit for data engineering teams. Helps AI runn
 - `AGENTS.md` is the repository entrypoint.
 - `.agents/instructions/` contains portable constraints and verification rules.
 - `.agents/skills/` contains task-specific behavior.
-- Platform adapters are optional and must not become a second source of truth.
-
-### Runner Adapters
-
-Follow [delegation routing](.agents/instructions/delegation-routing.md) to select an executor. Codex uses native execution by default; non-Codex runners prefer bounded independent Codex CLI work with Luna/max and native fallback. An explicit request for **Codex API** uses `~/.codex-api` and its configured provider/model/effort from any runner. [Codex delegation](.agents/instructions/codex-delegation.md) owns invocation details.
+- The AI agent's environment manages execution, permissions, model selection and available tools.
 
 ### Data Engineering Foundation
 
@@ -71,7 +67,7 @@ Additional skills can be added by users or installers. They can still work and a
 
 ## Plans & Templates
 
-Reusable plan templates for data engineering work live in `plans/templates/`:
+Reusable plan templates for data engineering work live in `.agents/skills/plan/assets/templates/`:
 
 | Template | Use when |
 |---|---|
@@ -82,7 +78,7 @@ Reusable plan templates for data engineering work live in `plans/templates/`:
 | `bug-fix-template.md` | Compatibility selector for diagnosis and repair sections |
 | `refactor-template.md` | Compatibility selector for refactor and performance sections |
 
-Convention: copy `plans/templates/plan-template.md` to `<root>/plans/YYMMDD-feature-name/plan.md`, then add only relevant scenario sections. Plans hold disposable execution state; link durable knowledge in `wiki/` rather than making a plan its only copy.
+Copy `.agents/skills/plan/assets/templates/plan-template.md` to `<root>/plans/<plan_id>/plan.md` under the canonical [plan policy](.agents/instructions/artifacts.md#plans), then add only relevant scenario sections and rebase local links to the destination. Plans hold disposable execution state; link durable knowledge in `wiki/` rather than making a plan its only copy.
 
 ## Wiki & Session Continuity
 
@@ -92,15 +88,16 @@ Read context by task: local work uses relevant files/constraints, a named-plan c
 
 ## Toolkit Packaging and Verification
 
-The toolkit ships as `AGENTS.md`, `.agents/`, and `plans/templates/` together; individual skills may reference shared instructions/templates. Consumer projects maintain their own wiki and execution plans. Codex role definitions are optional adapters.
+The toolkit ships as `AGENTS.md` and `.agents/` together; skills may reference shared instructions and own their reusable assets. Consumer projects maintain their own wiki and execution plans under `plans/`.
 
-Use [verification policy](.agents/instructions/verification.md) for task-specific checks. Helpers remain within the skills that own them; use the repository's `.venv` Python when present. Root-level setup/check scripts and the Claude skills adapter are currently retired.
+Optional native Codex role definitions remain in `.codex/agents/`. Use them when the environment supports configured roles; dekit does not manage external runner sessions or provider homes.
+
+Use [verification policy](.agents/instructions/verification.md) for task-specific checks. Helpers remain within the skills that own them; use the repository's `.venv` Python when present.
 
 Keep guidance focused on constraints, observed gotchas, and useful decision checks. Procedures must contribute task-specific information; remove generic teaching and repeated policy. Collect behavioral comparisons from real workloads before claiming quality or cost improvements.
 
 ## Getting Started
 
 1. Clone this repo into your workspace
-2. Read `AGENTS.md`
-3. Configure your AI runner to load the relevant adapters
-4. For Standard/Complex, risk-bearing Simple, or explicitly requested planning, copy `plans/templates/plan-template.md` to `plans/YYMMDD-feature-name/plan.md` and add only relevant scenario sections
+2. Have your AI agent read `AGENTS.md`; use skill discovery when supported, or load the relevant `.agents/skills/<name>/SKILL.md` explicitly
+3. For Standard/Complex, risk-bearing Simple, or explicitly requested planning, use the `plan` skill's template and add only relevant scenario sections

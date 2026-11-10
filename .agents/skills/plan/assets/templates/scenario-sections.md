@@ -29,7 +29,7 @@ Link canonical details rather than copy them here. Shared behavior and engine-sp
 
 ## Plan Review
 
-Follow [verification.md](../../.agents/instructions/verification.md#plan-review).
+Follow [verification.md](../../../../instructions/verification.md#plan-review).
 
 - Trigger / reviewed scope: [risk and plan revision or affected tasks]
 - Reviewer / evidence checked: [independent reviewer and relevant requirements/source/contracts]
@@ -54,7 +54,7 @@ Follow [verification.md](../../.agents/instructions/verification.md#plan-review)
 
 ## Data Pipeline
 
-Read [`data-engineering-constraints.md`](../../.agents/instructions/data-engineering-constraints.md) and fill only applicable fields:
+Read [`data-engineering-constraints.md`](../../../../instructions/data-engineering-constraints.md) and fill only applicable fields:
 
 - Source → target and grain: [mapping and ownership]
 - Load/change pattern: [full / append / merge / CDC; detection and replay window]

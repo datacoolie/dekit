@@ -23,18 +23,20 @@ Reclassify when discussion becomes implementation. Reuse a prior plan only if it
 
 Plan once the outcome, constraints, and selected direction are clear enough to execute. Use scout for local behavior, research for external evidence, and brainstorm for unresolved trade-offs; no fixed sequence is required.
 
+Before implementing a substantial or unfamiliar feature, check existing local solutions. When external research can reduce uncertainty or avoid unnecessary work, use bounded research to find relevant official documentation and source repositories (e.g. GitHub). Assess fit with project constraints before adopting an approach, and check licensing before reusing code. Follow the [research skill](../skills/research/SKILL.md) for evidence and search scope; do not require external research for small changes or an established approach.
+
 Unresolved architecture, contract, security, or irreversible-behavior choices gate dependent work only. Non-blocking unknowns need a resolution check; independent authorized work may proceed. Stop research when consequential decision criteria are covered.
 
 ## Delegation
 
-For Standard/Complex work, delegate bounded tasks when specialization, independence, or parallel work justifies coordination. Handle small work directly unless delegation is requested.
+Delegate bounded tasks when the current environment supports it and specialization, independence or parallel work justifies coordination. Work directly when that is sufficient.
 
-- Match capability and difficulty to the subtask; prefer configured lower-cost specialists where suitable. Keep synthesis and consequential decisions with the coordinator.
-- Send the task, minimum context/contracts, allowed edit paths, constraints, acceptance checks, and evidence required. Avoid full-history copies, duplicate exploration, and overlapping writes.
-- Use [delegation routing](delegation-routing.md) to select an executor and its adapter. Reuse specialists for related follow-ups; independent review needs a fresh context.
-- Tell delegated executors to complete the assigned work directly; further delegation requires an explicit coordinator assignment. Keep one active writer per affected path.
-- Before retrying or changing executor after a failure, confirm the previous executor has stopped writing, then inspect partial edits, generated artifacts, and verification state. A timeout alone does not prove it stopped; do not start an overlapping writer. Continue only unresolved work and preserve existing changes.
-- Check returned evidence. Escalate only unresolved work; do not claim model choice or savings without runtime/measurement evidence.
+- Prefer a suitable configured role when available; select it through the environment's role selector rather than a task label. Preserve its configured model/effort unless an override is authorized.
+- Send the task, minimum relevant context, edit ownership, constraints, acceptance checks and required evidence. Avoid duplicate exploration and full-history copies.
+- Keep one active writer per affected path or shared mutable runtime/state. Further delegation needs an explicit assignment.
+- Before retrying failed work, confirm the previous writer stopped and reconcile partial edits, artifacts and checks. A timeout alone does not prove it stopped; preserve existing changes and continue only unresolved work.
+- The coordinating agent checks returned evidence against scope and acceptance criteria and consolidates the result and durable knowledge.
+- Reuse subagents for related follow-ups; independent review needs a separate context. Apply the [verification policy](verification.md) for review gates.
 
 ## Durable Knowledge and Resume
 

@@ -63,7 +63,11 @@ Rules:
 
 Create an execution plan for Standard or Complex work, or when the user explicitly requests one. Trivial or Simple work does not need a plan unless its uncertainty, impact, dependency, or recovery risk justifies it.
 
-An implementation plan is an execution artifact, not the long-term home of project knowledge. It may be manually deleted at any time, including immediately after completion. Do not make a wiki page, decision, architecture description, test evidence, or follow-up depend on a completed plan's existence.
+Store every execution plan under `<root>/plans/<plan_id>/`, with `plan.md` as its entrypoint and related amendments/reports in the same directory. Resolve `<root>` using the workspace entrypoint rules, never the current or component directory; component-local `plans/` is not an alternative location. Reusable templates remain assets of the `plan` skill.
+
+For new plans, use `YYMMDD_name` as `plan_id`: the plan's creation date and a short lowercase-kebab-case name, for example `261011_wiki-maintenance`. Preserve existing plan IDs when resuming work.
+
+An implementation plan is an execution artifact, not the long-term home of project knowledge. It may be manually deleted at any time, including before completion. Durable wiki content follows the [plan-independent content rules](wiki.md#trust-and-content); do not make durable knowledge or evidence depend on a plan's existence.
 
 Plan metadata should use YAML frontmatter when the plan is stored as Markdown. When present, frontmatter owns overall status; update it at checkpoints instead of duplicating status in the body. Preserve a legacy plan's single existing status location without requiring bulk migration. Use visible tables for reviewable content and work-item state, not as the source of truth for plan metadata.
 
