@@ -6,6 +6,15 @@ Artifacts are durable project outputs for humans and AI runners: README files, u
 
 Keep artifacts factual, compact, and tied to checked source evidence.
 
+## Writing Agent Instructions
+
+Apply these principles from [ASD-STE100](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf) when you write or revise `AGENTS.md`, shared instructions, or dekit skill instructions:
+
+- Use one main action per sentence.
+- State the condition for each instruction that applies only in certain cases.
+- Use the same term for the same concept. Keep established data engineering terms.
+- Preserve the meaning of existing requirements and exceptions when you revise wording.
+
 ## README
 
 `README.md` is the project entrypoint.

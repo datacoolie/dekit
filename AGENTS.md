@@ -42,7 +42,7 @@ Read only what affects the next action:
 | [data-engineering-constraints.md](.agents/instructions/data-engineering-constraints.md) | Pipelines, SQL, Spark, notebooks, models, or data contracts |
 | [verification.md](.agents/instructions/verification.md) | Choosing tests, acceptance checks, evals, or review gates |
 | [wiki.md](.agents/instructions/wiki.md) | Reading/updating project memory or checking wiki health |
-| [artifacts.md](.agents/instructions/artifacts.md) | Creating/updating plans, reports, decisions, or user-facing docs |
+| [artifacts.md](.agents/instructions/artifacts.md) | Creating or updating plans, reports, decisions, or user-facing docs. See also [writing agent instructions](.agents/instructions/artifacts.md#writing-agent-instructions) when editing policy or skills. |
 
 ## Skills and artifacts
 

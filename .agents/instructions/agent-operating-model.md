@@ -34,7 +34,7 @@ Delegate bounded tasks when the current environment supports it and specializati
 - Prefer a suitable configured role when available; select it through the environment's role selector rather than a task label. Preserve its configured model/effort unless an override is authorized.
 - Send the task, minimum relevant context, edit ownership, constraints, acceptance checks and required evidence. Avoid duplicate exploration and full-history copies.
 - Keep one active writer per affected path or shared mutable runtime/state. Further delegation needs an explicit assignment.
-- Before retrying failed work, confirm the previous writer stopped and reconcile partial edits, artifacts and checks. A timeout alone does not prove it stopped; preserve existing changes and continue only unresolved work.
+- Before you retry failed work, confirm that the previous writer has stopped. If the only signal is a timeout, wait for confirmation. Reconcile partial edits, artifacts, and checks before you retry. Preserve existing changes. Continue only unresolved work.
 - The coordinating agent checks returned evidence against scope and acceptance criteria and consolidates the result and durable knowledge.
 - Reuse subagents for related follow-ups; independent review needs a separate context. Apply the [verification policy](verification.md) for review gates.
 
