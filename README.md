@@ -75,7 +75,7 @@ dekit keeps one canonical copy of each instruction, skill, and role contract. Ad
 | `AGENTS.md`, `.agents/instructions/`, `.agents/skills/` | Canonical instructions and skills |
 | `.codex/agents/<role>.toml` | Canonical role contracts in `developer_instructions` |
 | `.claude/agents/<role>.md`, `.agents/agents/<role>.md` | Role adapters |
-| `.claude/skills/<name>` | Git symlinks to `../../.agents/skills/<name>` |
+| `.claude/skills/<name>` | Local directory links to `.agents/skills/<name>`. `scripts/sync_skill_links.py` makes them. Git ignores them. |
 | `.claude/settings.json` | Removes AI attribution from commits and pull requests |
 
 Do not add other instruction files, such as `CLAUDE.md` or `GEMINI.md`. Some AI agents read such a file instead of `AGENTS.md`.
@@ -88,40 +88,35 @@ A role adapter does not copy the role contract. It tells the agent to read `deve
 
 You can change the model, effort, and tools in an adapter. Do not change the role contract there.
 
-### Windows and Git Symlinks
+### Skill Links
 
-The `.claude/skills/<name>` entries are Git symlinks (mode `120000`). When `core.symlinks` is `false`, Git for Windows writes each link as a plain text file. This is the default. An AI agent that reads `.claude/skills/` then does not find the skills.
+Some AI agents read project skills only from `.claude/skills/`. To give them the canonical skills, run this command from the repository root:
 
-To get real links on Windows:
+```bash
+python scripts/sync_skill_links.py
+```
 
-1. Turn on Developer Mode in Windows Settings, or run Git as an administrator.
-2. In the repository, run these commands:
+Run it again after you clone or copy dekit, and after you add, rename, or remove a skill. To report drift without changes, add `--check`. The command then exits with code 1 if a link is missing, wrong, or stale.
 
-   ```powershell
-   git config core.symlinks true
-   Remove-Item .claude\skills\* -Force
-   git checkout -- .claude/skills
-   ```
+The script:
 
-3. For a new clone, run `git clone -c core.symlinks=true <url>`.
+- Makes one relative symbolic link for each `.agents/skills/<name>/SKILL.md`.
+- On Windows, makes a directory junction when it cannot make a symbolic link. A symbolic link needs Developer Mode or an administrator shell. A junction needs no privilege, but it contains an absolute path. Thus, run the script again after you move the project.
+- Replaces text files and exact copies that a copy tool or Git wrote in place of a link.
+- Removes links to skills that no longer exist.
+- Does not change other content in `.claude/skills/`. If an entry has the name of a canonical skill but different content, the script reports `SKIP` and exits with code 1. Move that entry, then run the script again.
 
-You can also use the repository from WSL.
+The script needs Python 3 and uses only the standard library.
 
-When the links are plain text files, obey these rules:
+### Copy dekit to Another Project
 
-- Do not edit or stage the files in `.claude/skills/`. If their mode changes from `120000` to `100644`, the links break on all platforms. To check the mode, run `git ls-files -s .claude/skills`.
-- Do not copy dekit into another project from this checkout. The copy contains text files, not links.
+1. Copy `AGENTS.md`, `.agents/`, `.codex/`, `.claude/`, and `scripts/` to the project root. You can omit `.claude/skills/`.
+2. Add `.claude/skills/` to the `.gitignore` file of the project.
+3. In the project root, run `python scripts/sync_skill_links.py`.
 
 ### Maintenance
 
-- To add a skill, add `.agents/skills/<name>/SKILL.md`. Then add its link. Run this command in Git Bash or another POSIX shell, because PowerShell adds a line break to the link target:
-
-  ```bash
-  name=<name>
-  git update-index --add --cacheinfo "120000,$(printf '%s' "../../.agents/skills/$name" | git hash-object -w --stdin),.claude/skills/$name"
-  git checkout -- ".claude/skills/$name"
-  ```
-
+- To add, rename, or remove a skill, change `.agents/skills/<name>/`. Then run `python scripts/sync_skill_links.py`.
 - To change a role contract, edit `developer_instructions` in `.codex/agents/<role>.toml` only.
 - To change a role description, edit `.codex/agents/<role>.toml`. Then copy the same `description` to each role adapter.
 - To add a role, add `.codex/agents/<role>.toml` and one adapter in each adapter directory.
@@ -151,7 +146,7 @@ Read context by task: local work uses relevant files/constraints, a named-plan c
 
 The toolkit ships as `AGENTS.md` and `.agents/` together; skills may reference shared instructions and own their reusable assets. Consumer projects maintain their own wiki and execution plans under `plans/`.
 
-The adapter files in `.codex/`, `.claude/`, and `.agents/agents/` are optional. See [Agent Adapters](#agent-adapters). dekit does not manage external runner sessions or provider homes.
+The adapter files in `.codex/`, `.claude/`, and `.agents/agents/` are optional. `scripts/sync_skill_links.py` is the only toolkit script; it creates local links and no committed content. See [Agent Adapters](#agent-adapters). dekit does not manage external runner sessions or provider homes.
 
 Use [verification policy](.agents/instructions/verification.md) for task-specific checks. Helpers remain within the skills that own them; use the repository's `.venv` Python when present.
 
@@ -159,6 +154,6 @@ Keep guidance focused on constraints, observed gotchas, and useful decision chec
 
 ## Getting Started
 
-1. Clone this repo into your workspace. On Windows, read [Windows and Git Symlinks](#windows-and-git-symlinks).
+1. Clone this repo into your workspace. Then run `python scripts/sync_skill_links.py` from the repository root. See [Skill Links](#skill-links).
 2. Open the repo in your AI agent. It reads `AGENTS.md` and discovers the skills and roles. If your AI agent has no skill discovery, load the relevant `.agents/skills/<name>/SKILL.md` explicitly
 3. For Standard/Complex, risk-bearing Simple, or explicitly requested planning, use the `plan` skill's template and add only relevant scenario sections

@@ -167,3 +167,5 @@ temp/
 .scratch/
 .claude/settings.local.json
 .claude/worktrees/
+# Local links made by scripts/sync_skill_links.py
+.claude/skills/
