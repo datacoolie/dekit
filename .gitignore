@@ -165,3 +165,5 @@ temp/
 # Agent Workspace
 # ============================================================
 .scratch/
+.claude/settings.local.json
+.claude/worktrees/

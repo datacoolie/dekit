@@ -1,6 +1,6 @@
 name = "implementer"
 description = "Use for assigned code changes under an approved plan or clear request. Return the implementation and targeted verification evidence for independent testing."
-model = "gpt-6.2-sol"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
