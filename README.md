@@ -10,7 +10,7 @@ Portable instruction and skill toolkit for data engineering teams. Gives AI agen
 - `.agents/instructions/` contains portable constraints and verification rules.
 - `.agents/skills/` contains task-specific behavior.
 - The AI agent's environment manages execution, permissions, model selection and available tools.
-- Codex, Claude Code, and Google Antigravity read these files through their native discovery paths. See [Platform Support](#platform-support).
+- Adapter files connect each AI agent to these files. See [Agent Adapters](#agent-adapters).
 
 ### Data Engineering Foundation
 
@@ -66,59 +66,31 @@ Additional skills can be added by users or installers. They can still work and a
 | `git` | Git operations, conventional commits |
 | `docs` | End-user and public documentation |
 
-## Platform Support
+## Agent Adapters
 
-dekit keeps one canonical copy of each instruction, skill, and role contract. Codex, Claude Code, and Google Antigravity read them through native discovery. Platform files contain only platform settings.
+dekit keeps one canonical copy of each instruction, skill, and role contract. Adapter files only connect an AI agent to that copy.
 
-| Item | Codex | Claude Code | Google Antigravity |
-|---|---|---|---|
-| Instructions | `AGENTS.md` | `AGENTS.md` (v2.1.277 or later) | `AGENTS.md` |
-| Skills | `.agents/skills/` | `.claude/skills/<name>`, a Git symlink to `../../.agents/skills/<name>` | `.agents/skills/` |
-| Roles | `.codex/agents/<role>.toml` | `.claude/agents/<role>.md` | `.agents/agents/<role>.md` |
-| Settings | None | `.claude/settings.json` removes commit and pull request attribution | None |
+| Path | Content |
+|---|---|
+| `AGENTS.md`, `.agents/instructions/`, `.agents/skills/` | Canonical instructions and skills |
+| `.codex/agents/<role>.toml` | Canonical role contracts in `developer_instructions` |
+| `.claude/agents/<role>.md`, `.agents/agents/<role>.md` | Role adapters |
+| `.claude/skills/<name>` | Git symlinks to `../../.agents/skills/<name>` |
+| `.claude/settings.json` | Removes AI attribution from commits and pull requests |
 
-dekit does not use `CLAUDE.md`, `GEMINI.md`, `.agents/rules/`, plugins, or generators.
+Do not add other instruction files, such as `CLAUDE.md` or `GEMINI.md`. Some AI agents read such a file instead of `AGENTS.md`.
 
 ### Roles
 
-The seven roles are `scout`, `researcher`, `strategist`, `planner`, `implementer`, `tester`, and `documenter`. The `developer_instructions` value in `.codex/agents/<role>.toml` is the canonical role contract. The Claude Code and Antigravity role files tell the subagent to read that contract. They do not copy it. Each role file repeats the Codex `description`, because each platform uses it to select the role.
+The seven roles are `scout`, `researcher`, `strategist`, `planner`, `implementer`, `tester`, and `documenter`. `scout` and `strategist` are read-only.
 
-Each platform file sets its own model, reasoning effort, and tools:
+A role adapter does not copy the role contract. It tells the agent to read `developer_instructions` in `.codex/agents/<role>.toml`. The adapter sets only the model, reasoning effort, and tools that its AI agent supports. Each adapter repeats the `description` from `.codex/agents/<role>.toml`, because the AI agent uses it to select the role.
 
-| Role | Codex | Claude Code | Antigravity |
-|---|---|---|---|
-| `scout` | `gpt-6-luna`, `xhigh` | `sonnet`, `xhigh`; no `Write`, `Edit`, `NotebookEdit`, `WebFetch`, or `WebSearch` | `flash`; only `view_file`, `grep_search`, `find_by_name`, and `list_dir` |
-| `strategist` | `gpt-6.1-sol`, `high` | `opus`, `high`; same limits as `scout` | `pro`; same tools as `scout` |
-| `researcher`, `planner` | `gpt-6.1-sol`, `high` | `opus`, `high`; all tools | `pro`; default tools |
-| `implementer` | `gpt-6.1-sol`, `medium` | `opus`, `medium`; all tools | `pro`; default tools |
-| `documenter`, `tester` | `gpt-6-luna`, `max` | `sonnet`, `max`; all tools | `flash`; default tools |
-
-The model rule: a `gpt-6-luna` role uses `sonnet` and `flash`, and a `gpt-6.1-sol` role uses `opus` and `pro`. The Claude Code `effort` value is the same as the Codex `model_reasoning_effort` value. Set `effort` in each Claude Code role file. If you do not, a subagent on a model different from the main session runs at the model default (`medium` on Opus 5.5 and Sonnet 5.5). Antigravity role files have no effort setting.
-
-The aliases `opus` and `sonnet` select the newest model for your provider. On Amazon Bedrock, Google Cloud's Agent Platform, and Microsoft Foundry, they can select an earlier model that supports fewer effort levels. Claude Code then uses the highest supported level at or below the value. The `max` level can cost more and overthink; test it before you keep it for `documenter` and `tester`.
-
-Antigravity role files can select only a model tier, not a model name. The documented tiers are `inherit`, `flash_lite`, `flash`, and `pro`. On 2026-11-23, `pro` selects Gemini 4 Argon and `flash` selects Gemini 3.8 Flash. Thus a role file cannot select Gemini 4 Neon, Gemini 4 Carbon, Gemini 4 Hydrogen, or the Claude models in Antigravity. Role files also have no effort setting, so roles run at the default thinking level of the tier model. This is lower than the Codex and Claude Code effort for `scout`, `tester`, and `documenter`.
-
-- Gemini 4 Argon is not available on the Free and Google AI Plus plans. Gemini 3.8 Flash is available on all plans.
-- To run a role on the model of the main conversation, set `model: inherit`. Then you can select Gemini 4 Neon or another model in the model selector.
-
-Antigravity role files set `subagent: true` and `mainAgent: false`. Thus the roles are subagents only, as in Codex. You can change the model and tools in a platform file. Do not change the role contract there.
-
-The read-only boundary of `scout` and `strategist` has different enforcement on each platform:
-
-- Codex applies the parent session sandbox. The `sandbox_mode` key in a role file does not override it, so the role contract is the only limit.
-- Claude Code removes the file-edit and web tools. The role keeps Bash and PowerShell for commands such as `git log`, so a shell command can still change files.
-- Antigravity gives the role only file-read and search tools.
-
-### Claude Code
-
-- Use Claude Code v2.1.277 or later. Earlier versions do not read `AGENTS.md`.
-- Do not add `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` to the repository path. If one of these files exists, Claude Code reads it instead of `AGENTS.md`. If you must use one, put `@AGENTS.md` in it, or set **Project instructions** to `claude-md-and-agents-md` in `/config`.
-- Git ignores `.claude/settings.local.json` and `.claude/worktrees/`.
+You can change the model, effort, and tools in an adapter. Do not change the role contract there.
 
 ### Windows and Git Symlinks
 
-The `.claude/skills/<name>` entries are Git symlinks (mode `120000`). When `core.symlinks` is `false`, Git for Windows writes each link as a plain text file. This is the default. Claude Code then does not find the skills. Codex and Antigravity are not affected.
+The `.claude/skills/<name>` entries are Git symlinks (mode `120000`). When `core.symlinks` is `false`, Git for Windows writes each link as a plain text file. This is the default. An AI agent that reads `.claude/skills/` then does not find the skills.
 
 To get real links on Windows:
 
@@ -140,11 +112,9 @@ When the links are plain text files, obey these rules:
 - Do not edit or stage the files in `.claude/skills/`. If their mode changes from `120000` to `100644`, the links break on all platforms. To check the mode, run `git ls-files -s .claude/skills`.
 - Do not copy dekit into another project from this checkout. The copy contains text files, not links.
 
-If your checkout has untracked `.claude/skills` links from the retired setup script, remove them before you pull this version.
-
 ### Maintenance
 
-- To add a skill, add `.agents/skills/<name>/SKILL.md`. Then add the Claude Code link. Run this command in Git Bash or another POSIX shell, because PowerShell adds a line break to the link target:
+- To add a skill, add `.agents/skills/<name>/SKILL.md`. Then add its link. Run this command in Git Bash or another POSIX shell, because PowerShell adds a line break to the link target:
 
   ```bash
   name=<name>
@@ -152,19 +122,9 @@ If your checkout has untracked `.claude/skills` links from the retired setup scr
   git checkout -- ".claude/skills/$name"
   ```
 
-  Codex and Antigravity find the new skill without more changes.
 - To change a role contract, edit `developer_instructions` in `.codex/agents/<role>.toml` only.
-- To change a role description, edit `.codex/agents/<role>.toml`. Then copy the same `description` to `.claude/agents/<role>.md` and `.agents/agents/<role>.md`.
-- To change a role effort, edit `model_reasoning_effort` in `.codex/agents/<role>.toml`. Then copy the same value to `effort` in `.claude/agents/<role>.md`.
-- To add a role, add one file for each platform.
-
-### Unverified Behavior
-
-These items were not verified on 2026-11-23:
-
-- Claude Code: discovery was checked against the official documentation and a Linux checkout of the symlinks. It was not run in a live Claude Code session.
-- Antigravity v2.34.0: the local language server discovered `AGENTS.md`, 19 skills, and the 7 roles without errors. A live subagent call was not run. The Antigravity documentation gives different tool names and different defaults for an omitted `tools` list. If `scout` or `strategist` stops responding, a name in its `tools` list is not supported by your version. Correct the name in `.agents/agents/<role>.md`.
-- Commit and pull request attribution from Codex and Antigravity was not checked.
+- To change a role description, edit `.codex/agents/<role>.toml`. Then copy the same `description` to each role adapter.
+- To add a role, add `.codex/agents/<role>.toml` and one adapter in each adapter directory.
 
 ## Plans & Templates
 
@@ -189,9 +149,9 @@ Read context by task: local work uses relevant files/constraints, a named-plan c
 
 ## Toolkit Packaging and Verification
 
-The toolkit ships as `AGENTS.md` and `.agents/` together; skills may reference shared instructions and own their reusable assets. Add `.codex/` and `.claude/` when you use those runners. Consumer projects maintain their own wiki and execution plans under `plans/`.
+The toolkit ships as `AGENTS.md` and `.agents/` together; skills may reference shared instructions and own their reusable assets. Consumer projects maintain their own wiki and execution plans under `plans/`.
 
-The platform files in `.codex/agents/`, `.claude/`, and `.agents/agents/` are optional adapters. See [Platform Support](#platform-support). dekit does not manage external runner sessions or provider homes.
+The adapter files in `.codex/`, `.claude/`, and `.agents/agents/` are optional. See [Agent Adapters](#agent-adapters). dekit does not manage external runner sessions or provider homes.
 
 Use [verification policy](.agents/instructions/verification.md) for task-specific checks. Helpers remain within the skills that own them; use the repository's `.venv` Python when present.
 
@@ -199,6 +159,6 @@ Keep guidance focused on constraints, observed gotchas, and useful decision chec
 
 ## Getting Started
 
-1. Clone this repo into your workspace. On Windows, read [Windows and Git Symlinks](#windows-and-git-symlinks) if you use Claude Code.
-2. Open the repo in Codex, Claude Code, or Google Antigravity. The runner reads `AGENTS.md` and discovers the skills and roles. If your runner has no skill discovery, load the relevant `.agents/skills/<name>/SKILL.md` explicitly
+1. Clone this repo into your workspace. On Windows, read [Windows and Git Symlinks](#windows-and-git-symlinks).
+2. Open the repo in your AI agent. It reads `AGENTS.md` and discovers the skills and roles. If your AI agent has no skill discovery, load the relevant `.agents/skills/<name>/SKILL.md` explicitly
 3. For Standard/Complex, risk-bearing Simple, or explicitly requested planning, use the `plan` skill's template and add only relevant scenario sections
