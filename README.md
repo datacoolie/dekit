@@ -1,6 +1,6 @@
 # dekit
 
-Portable instruction and skill toolkit for data engineering teams. Gives AI agents focused guidance to build, test, deploy, review, document and maintain data pipelines.
+Portable instruction and skill toolkit for data engineering teams. Gives AI agents focused guidance for data pipelines, Python packages and applications, and FastAPI services.
 
 ## What's Inside
 
@@ -27,6 +27,8 @@ Additional skills can be added by users or installers. They can still work and a
 | Skill | Purpose |
 |---|---|
 | `plan` | Implementation planning, architecture decisions, phased roadmaps |
+| [`python-development`](.agents/skills/python-development/SKILL.md) | Python packages, imports, tooling, runtime compatibility, and application design |
+| [`fastapi-development`](.agents/skills/fastapi-development/SKILL.md) | FastAPI routing, HTTP contracts, persistence, execution, and service operations |
 | `spark-development` | PySpark patterns, joins, optimization, UDFs, debugging |
 | `sql-authoring` | Window functions, CTEs, pivots, dialect differences |
 | `data-modeling` | Grain-first dimensional or non-dimensional modeling, SCD, Data Vault, keys, metrics |
@@ -65,6 +67,8 @@ Additional skills can be added by users or installers. They can still work and a
 |---|---|
 | `git` | Git operations, conventional commits |
 | `docs` | End-user and public documentation |
+
+Use the Python and FastAPI skills through the [toolkit clone or copy workflow](#copy-dekit-to-another-project). Load the relevant `SKILL.md` explicitly when the runner needs manual routing. Official library documentation and skills remain external and can supplement DEKit's guidance for the versions in use. Standalone installation of these two skills is outside the supported workflow.
 
 ## Agent Adapters
 
