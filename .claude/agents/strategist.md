@@ -1,6 +1,6 @@
 ---
 name: strategist
-description: "Use for solution trade-offs or independent review of plans and code. Return evidence-backed recommendations or actionable findings; read-only."
+description: "Use to compare viable solutions and recommend a direction based on the available evidence. Read-only."
 model: opus
 effort: high
 disallowedTools: Write, Edit, NotebookEdit, WebFetch, WebSearch

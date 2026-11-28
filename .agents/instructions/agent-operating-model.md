@@ -32,6 +32,7 @@ Unresolved architecture, contract, security, or irreversible-behavior choices ga
 Delegate bounded tasks when the current environment supports it and specialization, independence or parallel work justifies coordination. Work directly when that is sufficient.
 
 - Prefer a suitable configured role when available; select it through the environment's role selector rather than a task label. Preserve its configured model/effort unless an override is authorized.
+- Assign delegated plan and code reviews to `reviewer`. Use `strategist` to compare viable solutions and recommend a direction.
 - Send the task, minimum relevant context, edit ownership, constraints, acceptance checks and required evidence. Avoid duplicate exploration and full-history copies.
 - Keep one active writer per affected path or shared mutable runtime/state. Further delegation needs an explicit assignment.
 - Before you retry failed work, confirm that the previous writer has stopped. If the only signal is a timeout, wait for confirmation. Reconcile partial edits, artifacts, and checks before you retry. Preserve existing changes. Continue only unresolved work.

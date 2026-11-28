@@ -86,7 +86,7 @@ Do not add other instruction files, such as `CLAUDE.md` or `GEMINI.md`. Some AI 
 
 ### Roles
 
-The seven roles are `scout`, `researcher`, `strategist`, `planner`, `implementer`, `tester`, and `documenter`. `scout` and `strategist` are read-only.
+The eight roles are `scout`, `researcher`, `strategist`, `planner`, `implementer`, `reviewer`, `tester`, and `documenter`. `scout`, `strategist`, and `reviewer` are read-only. `reviewer` reviews plans, code, and data-pipeline changes independently. `strategist` compares viable solutions and recommends a direction. See [Delegation](.agents/instructions/agent-operating-model.md#delegation).
 
 A role adapter does not copy the role contract. It tells the agent to read `developer_instructions` in `.codex/agents/<role>.toml`. The adapter sets only the model, reasoning effort, and tools that its AI agent supports. Each adapter repeats the `description` from `.codex/agents/<role>.toml`, because the AI agent uses it to select the role.
 
